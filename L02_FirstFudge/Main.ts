@@ -13,22 +13,30 @@ namespace L02_FirstFudge {
         f.RenderManager.initialize();
 
         let node: f.Node = new f.Node("Quad");
+        let nodeBackground: f.Node = new f.Node("Background");
         let mesh: f.MeshQuad = new f.MeshQuad();
         let cmpMesh: f.ComponentMesh = new f.ComponentMesh(mesh);
         node.addComponent(cmpMesh);
-
-        let mtrSolidWhite: f.Material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(new f.Color(1, 1, 1, 1)));
+        nodeBackground.addComponent(new f.ComponentMesh(mesh));
+        let mtrSolidWhite: f.Material = new f.Material("SolidWhite", 
+                                                       f.ShaderUniColor, new f.CoatColored(new f.Color(1, 1, 1, 1)));
         let cmpMaterial: f.ComponentMaterial = new f.ComponentMaterial(mtrSolidWhite);
+        let mtrSolidGrey: f.Material = new f.Material("SolidGrey", 
+                                                      f.ShaderUniColor, new f.CoatColored(new f.Color(0.5, 0.5, 0.5, 1)));
+        
+        let cmpMaterialBackground: f.ComponentMaterial = new f.ComponentMaterial(mtrSolidGrey);
         node.addComponent(cmpMaterial);
+        nodeBackground.addComponent(cmpMaterialBackground);
 
         let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
-        cmpCamera.pivot.translateZ(3);
+        cmpCamera.pivot.translateZ(15);
 
-        
+        nodeBackground.appendChild(node);
         viewport = new f.Viewport();
-        f.Debug.log(canvas);
-        viewport.initialize("Viewport", node, cmpCamera, canvas);
-        f.Debug.log(viewport);
+        viewport.initialize("Viewport", nodeBackground, cmpCamera, canvas);
+        viewport.pointClientToRender(new f.Vector2(2, 3));
+        viewport.showSceneGraph();
+
 
         viewport.draw();
     }
