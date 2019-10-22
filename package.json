@@ -25,6 +25,7 @@
     "@types/webgl2": "0.0.5",
     "@types/ws": "^6.0.2",
     "electron": "^6.0.2",
+    "tslint": "^5.20.0",
     "typescript": "^3.6.4",
     "websocket": "^1.0.29",
     "ws": "^7.1.2"
