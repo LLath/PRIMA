@@ -15,14 +15,20 @@ var L02_FirstFudge;
         let paddelLeft = createQuadComponent("PaddelLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddelLeft);
         let paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
-        nodeRoot.appendChild(createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(0.1, 0.1)));
         nodeRoot.appendChild(paddleRight);
+        nodeRoot.appendChild(createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(0.1, 0.1)));
         let cmpCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(15);
         L02_FirstFudge.viewport = new f.Viewport();
+        L02_FirstFudge.viewport.addEventListener("\u0192keydown" /* DOWN */, wheelUp);
         L02_FirstFudge.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
+        L02_FirstFudge.viewport.setFocus(true);
+        L02_FirstFudge.viewport.activateKeyboardEvent("\u0192keydown" /* DOWN */, true);
         L02_FirstFudge.viewport.showSceneGraph();
         L02_FirstFudge.viewport.draw();
+    }
+    function wheelUp(_event) {
+        console.log("\u0192keydown" /* DOWN */, "\u0192keyup" /* UP */);
     }
     /**
      *
@@ -36,6 +42,7 @@ var L02_FirstFudge;
         const node = new f.Node(_nameNode);
         const cmpMesh = new f.ComponentMesh(_mesh);
         const cmpMaterial = new f.ComponentMaterial(_material);
+        // transform _scale and _pos to Vector3 so it can be more easily used for local.translate
         const scale = new f.Vector3(_scale.x, _scale.y, 0);
         const pos = new f.Vector3(_pos.x, _pos.y, 0);
         cmpMesh.pivot.scale(scale);

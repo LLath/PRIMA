@@ -35,6 +35,7 @@ namespace L02_FirstFudge {
       new f.Vector2(7, 0),
       new f.Vector2(0.05, 3)
     );
+    nodeRoot.appendChild(paddleRight);
 
     nodeRoot.appendChild(
       createQuadComponent(
@@ -45,15 +46,21 @@ namespace L02_FirstFudge {
         new f.Vector2(0.1, 0.1)
       )
     );
-    nodeRoot.appendChild(paddleRight);
-
     let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
     cmpCamera.pivot.translateZ(15);
 
     viewport = new f.Viewport();
+    viewport.addEventListener(f.EVENT_KEYBOARD.DOWN, wheelUp);
+
     viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
+    viewport.setFocus(true);
+    viewport.activateKeyboardEvent(f.EVENT_KEYBOARD.DOWN, true);
     viewport.showSceneGraph();
     viewport.draw();
+  }
+
+  function wheelUp(_event: Event): void {
+    console.log(f.EVENT_KEYBOARD.DOWN, f.EVENT_KEYBOARD.UP);
   }
 
   /**
@@ -74,6 +81,8 @@ namespace L02_FirstFudge {
     const node: f.Node = new f.Node(_nameNode);
     const cmpMesh: f.ComponentMesh = new f.ComponentMesh(_mesh);
     const cmpMaterial: f.ComponentMaterial = new f.ComponentMaterial(_material);
+
+    // transform _scale and _pos to Vector3 so it can be more easily used for local.translate
     const scale: f.Vector3 = new f.Vector3(_scale.x, _scale.y, 0);
     const pos: f.Vector3 = new f.Vector3(_pos.x, _pos.y, 0);
 
