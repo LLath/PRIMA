@@ -1,17 +1,24 @@
-namespace L02_FirstFudge {
-  import f = FudgeCore;
+namespace L04_PongAnimated {
+// TODO: Ball bewegen
+interface KeyPressed {
+  [code: string]: boolean;
+}
 
-  window.addEventListener("load", hndLoad);
-  export let viewport: f.Viewport;
-  let paddleLeft: f.Node = new f.Node("PaddleLeft");
-  let paddleRight: f.Node = new f.Node("PaddleRight");
-  let keysPressed: Set<string>  = new Set();
+import f = FudgeCore;
+
+export let viewport: f.Viewport;
+
+window.addEventListener("load", hndLoad);
+let paddleLeft: f.Node = new f.Node("PaddleLeft");
+let paddleRight: f.Node = new f.Node("PaddleRight");
+let keysPressedInterface: KeyPressed = {};
+let keysPressed: Set<string>  = new Set();
 
   /**
    *
    * @param _event
    */
-  function hndLoad(_event: Event): void {
+function hndLoad(_event: Event): void {
     const canvas: HTMLCanvasElement = document.querySelector("canvas");
     f.RenderManager.initialize();
 
@@ -67,18 +74,21 @@ namespace L02_FirstFudge {
     viewport.draw();
   }
 
-  function hndlKeyDown(_event: KeyboardEvent): void {
+function hndlKeyDown(_event: KeyboardEvent): void {
     keysPressed.add(_event.code);
+    keysPressedInterface[_event.code] = true;
     let key: string = _event.code;
-    key === f.KEYBOARD_CODE.W ? paddleLeft.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.S && paddleLeft.cmpTransform.local.translateY(-1); 
+    key === f.KEYBOARD_CODE.W ? paddleLeft.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.S && paddleLeft.cmpTransform.local.translateY(-1);
     key === f.KEYBOARD_CODE.ARROW_UP ? paddleRight.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.ARROW_DOWN && paddleRight.cmpTransform.local.translateY(-1); 
   }
-  function hndlKeyUp(_event: KeyboardEvent): void {
+function hndlKeyUp(_event: KeyboardEvent): void {
     keysPressed.delete(_event.code);
+    keysPressedInterface[_event.code] = false;
+
   }
   
-  function update(_event: Event): void {
-    console.log(keysPressed);
+function update(_event: Event): void {
+    console.log(keysPressed.keys());
     f.RenderManager.update();
     viewport.draw();
     f.Debug.log("Update");
@@ -92,7 +102,7 @@ namespace L02_FirstFudge {
    * @param _pos
    * @param _scale
    */
-  function createQuadComponent(
+function createQuadComponent(
   _nameNode: string,
   _material: f.Material,
   _mesh: f.Mesh,

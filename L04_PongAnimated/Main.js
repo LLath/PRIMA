@@ -1,10 +1,11 @@
 "use strict";
-var L02_FirstFudge;
-(function (L02_FirstFudge) {
+var L04_PongAnimated;
+(function (L04_PongAnimated) {
     var f = FudgeCore;
     window.addEventListener("load", hndLoad);
     let paddleLeft = new f.Node("PaddleLeft");
     let paddleRight = new f.Node("PaddleRight");
+    let keysPressedInterface = {};
     let keysPressed = new Set();
     /**
      *
@@ -22,28 +23,30 @@ var L02_FirstFudge;
         nodeRoot.appendChild(createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(0.1, 0.1)));
         let cmpCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(15);
-        L02_FirstFudge.viewport = new f.Viewport();
+        L04_PongAnimated.viewport = new f.Viewport();
         document.addEventListener("keydown", hndlKeyDown);
         document.addEventListener("keyup", hndlKeyUp);
-        L02_FirstFudge.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
-        L02_FirstFudge.viewport.showSceneGraph();
+        L04_PongAnimated.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
+        L04_PongAnimated.viewport.showSceneGraph();
         f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
         // f.Loop.start();
-        L02_FirstFudge.viewport.draw();
+        L04_PongAnimated.viewport.draw();
     }
     function hndlKeyDown(_event) {
         keysPressed.add(_event.code);
+        keysPressedInterface[_event.code] = true;
         let key = _event.code;
         key === f.KEYBOARD_CODE.W ? paddleLeft.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.S && paddleLeft.cmpTransform.local.translateY(-1);
         key === f.KEYBOARD_CODE.ARROW_UP ? paddleRight.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.ARROW_DOWN && paddleRight.cmpTransform.local.translateY(-1);
     }
     function hndlKeyUp(_event) {
         keysPressed.delete(_event.code);
+        keysPressedInterface[_event.code] = false;
     }
     function update(_event) {
-        console.log(keysPressed);
+        console.log(keysPressed.keys());
         f.RenderManager.update();
-        L02_FirstFudge.viewport.draw();
+        L04_PongAnimated.viewport.draw();
         f.Debug.log("Update");
     }
     /**
@@ -68,5 +71,5 @@ var L02_FirstFudge;
         node.cmpTransform.local.translate(pos);
         return node;
     }
-})(L02_FirstFudge || (L02_FirstFudge = {}));
+})(L04_PongAnimated || (L04_PongAnimated = {}));
 //# sourceMappingURL=Main.js.map
