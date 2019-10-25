@@ -11,6 +11,11 @@ export let viewport: f.Viewport;
 window.addEventListener("load", hndLoad);
 let paddleLeft: f.Node = new f.Node("PaddleLeft");
 let paddleRight: f.Node = new f.Node("PaddleRight");
+let nodeBall: f.Node = new f.Node("Ball");
+let nodeRoot: f.Node = new f.Node("Root");
+
+const ballSpeed: number = Math.random() * 2 - 1;
+
 let keysPressedInterface: KeyPressed = {};
 let keysPressed: Set<string>  = new Set();
 
@@ -19,59 +24,61 @@ let keysPressed: Set<string>  = new Set();
    * @param _event
    */
 function hndLoad(_event: Event): void {
-    const canvas: HTMLCanvasElement = document.querySelector("canvas");
-    f.RenderManager.initialize();
+  const canvas: HTMLCanvasElement = document.querySelector("canvas");
+  f.RenderManager.initialize();
 
-    let material: f.Material = new f.Material(
+  let material: f.Material = new f.Material(
         "SolidWhite",
         f.ShaderUniColor,
         new f.CoatColored(f.Color.WHITE)
     );
 
-    let nodeRoot: f.Node = new f.Node("Root");
-    paddleLeft = createQuadComponent(
+  paddleLeft = createQuadComponent(
         "PaddeLeft",
         material,
         new f.MeshQuad(),
         new f.Vector2(-7, 0),
         new f.Vector2(0.05, 3)
     );
-    nodeRoot.appendChild(paddleLeft);
+  nodeRoot.appendChild(paddleLeft);
 
-    paddleRight = createQuadComponent(
+  paddleRight = createQuadComponent(
         "PaddleRight",
         material,
         new f.MeshQuad(),
         new f.Vector2(7, 0),
         new f.Vector2(0.05, 3)
     );
-    nodeRoot.appendChild(paddleRight);
+  nodeRoot.appendChild(paddleRight);
 
-    nodeRoot.appendChild(
+  nodeBall = 
         createQuadComponent(
         "Ball",
         material,
         new f.MeshQuad(),
         new f.Vector2(0, 0),
         new f.Vector2(0.1, 0.1)
-        )
-    );
+        );
+  nodeRoot.appendChild(nodeBall);
 
-    let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
-    cmpCamera.pivot.translateZ(15);
+  let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
+  cmpCamera.pivot.translateZ(15);
 
-    viewport = new f.Viewport();
+  viewport = new f.Viewport();
 
-    document.addEventListener("keydown", hndlKeyDown);
-    document.addEventListener("keyup", hndlKeyUp);
-    viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
+  document.addEventListener("keydown", hndlKeyDown);
+  document.addEventListener("keyup", hndlKeyUp);
+  viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
 
-    viewport.showSceneGraph();
+  viewport.showSceneGraph();
 
-    f.Loop.addEventListener(f.EVENT.LOOP_FRAME, update);
-    // f.Loop.start();
-
-    viewport.draw();
+  f.Loop.addEventListener(f.EVENT.LOOP_FRAME, update);
+  f.Loop.start();
+  const boundary: f.Vector2 = new f.Vector2(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height);
+  console.log(boundary.x / 15, boundary.y / 15);
+  
+  // ballMovement(new f.Vector2(canvas.getBoundingClientRect().right, canvas.getBoundingClientRect().height);
+  viewport.draw();
   }
 
 function hndlKeyDown(_event: KeyboardEvent): void {
@@ -86,12 +93,18 @@ function hndlKeyUp(_event: KeyboardEvent): void {
     keysPressedInterface[_event.code] = false;
 
   }
+
+function ballMovement(): void {
+ ( nodeBall.cmpTransform.local.translation.x > 8  ||
+  nodeBall.cmpTransform.local.translation.x < -8) &&
+   nodeBall.cmpTransform.local.translateX(nodeBall.cmpTransform.local.translation.x - 1);
+}
   
 function update(_event: Event): void {
-    console.log(keysPressed.keys());
-    f.RenderManager.update();
-    viewport.draw();
-    f.Debug.log("Update");
+  nodeBall.cmpTransform.local.translate(new f.Vector3(ballSpeed, 0, 0));
+  ballMovement();
+  f.RenderManager.update();
+  viewport.draw();
   }
 
   /**

@@ -5,6 +5,9 @@ var L04_PongAnimated;
     window.addEventListener("load", hndLoad);
     let paddleLeft = new f.Node("PaddleLeft");
     let paddleRight = new f.Node("PaddleRight");
+    let nodeBall = new f.Node("Ball");
+    let nodeRoot = new f.Node("Root");
+    const ballSpeed = Math.random() * 2 - 1;
     let keysPressedInterface = {};
     let keysPressed = new Set();
     /**
@@ -15,12 +18,13 @@ var L04_PongAnimated;
         const canvas = document.querySelector("canvas");
         f.RenderManager.initialize();
         let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.WHITE));
-        let nodeRoot = new f.Node("Root");
         paddleLeft = createQuadComponent("PaddeLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleLeft);
         paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleRight);
-        nodeRoot.appendChild(createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(0.1, 0.1)));
+        nodeBall =
+            createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(0.1, 0.1));
+        nodeRoot.appendChild(nodeBall);
         let cmpCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(15);
         L04_PongAnimated.viewport = new f.Viewport();
@@ -29,7 +33,10 @@ var L04_PongAnimated;
         L04_PongAnimated.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
         L04_PongAnimated.viewport.showSceneGraph();
         f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
-        // f.Loop.start();
+        f.Loop.start();
+        const boundary = new f.Vector2(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height);
+        console.log(boundary.x / 15, boundary.y / 15);
+        // ballMovement(new f.Vector2(canvas.getBoundingClientRect().right, canvas.getBoundingClientRect().height);
         L04_PongAnimated.viewport.draw();
     }
     function hndlKeyDown(_event) {
@@ -43,11 +50,16 @@ var L04_PongAnimated;
         keysPressed.delete(_event.code);
         keysPressedInterface[_event.code] = false;
     }
+    function ballMovement() {
+        (nodeBall.cmpTransform.local.translation.x > 8 ||
+            nodeBall.cmpTransform.local.translation.x < -8) &&
+            nodeBall.cmpTransform.local.translateX(nodeBall.cmpTransform.local.translation.x - 1);
+    }
     function update(_event) {
-        console.log(keysPressed.keys());
+        nodeBall.cmpTransform.local.translate(new f.Vector3(ballSpeed, 0, 0));
+        ballMovement();
         f.RenderManager.update();
         L04_PongAnimated.viewport.draw();
-        f.Debug.log("Update");
     }
     /**
      *
