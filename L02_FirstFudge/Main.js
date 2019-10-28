@@ -3,6 +3,9 @@ var L02_FirstFudge;
 (function (L02_FirstFudge) {
     var f = FudgeCore;
     window.addEventListener("load", hndLoad);
+    let paddleLeft = new f.Node("PaddleLeft");
+    let paddleRight = new f.Node("PaddleRight");
+    let keysPressed = new Set();
     /**
      *
      * @param _event
@@ -12,23 +15,36 @@ var L02_FirstFudge;
         f.RenderManager.initialize();
         let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.WHITE));
         let nodeRoot = new f.Node("Root");
-        let paddelLeft = createQuadComponent("PaddelLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
-        nodeRoot.appendChild(paddelLeft);
-        let paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
+        paddleLeft = createQuadComponent("PaddeLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
+        nodeRoot.appendChild(paddleLeft);
+        paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleRight);
         nodeRoot.appendChild(createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(0.1, 0.1)));
         let cmpCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(15);
         L02_FirstFudge.viewport = new f.Viewport();
-        L02_FirstFudge.viewport.addEventListener("\u0192keydown" /* DOWN */, wheelUp);
+        document.addEventListener("keydown", hndlKeyDown);
+        document.addEventListener("keyup", hndlKeyUp);
         L02_FirstFudge.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
-        L02_FirstFudge.viewport.setFocus(true);
-        L02_FirstFudge.viewport.activateKeyboardEvent("\u0192keydown" /* DOWN */, true);
         L02_FirstFudge.viewport.showSceneGraph();
+        f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
+        // f.Loop.start();
         L02_FirstFudge.viewport.draw();
     }
-    function wheelUp(_event) {
-        console.log("\u0192keydown" /* DOWN */, "\u0192keyup" /* UP */);
+    function hndlKeyDown(_event) {
+        keysPressed.add(_event.code);
+        let key = _event.code;
+        key === f.KEYBOARD_CODE.W ? paddleLeft.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.S && paddleLeft.cmpTransform.local.translateY(-1);
+        key === f.KEYBOARD_CODE.ARROW_UP ? paddleRight.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.ARROW_DOWN && paddleRight.cmpTransform.local.translateY(-1);
+    }
+    function hndlKeyUp(_event) {
+        keysPressed.delete(_event.code);
+    }
+    function update(_event) {
+        console.log(keysPressed);
+        f.RenderManager.update();
+        L02_FirstFudge.viewport.draw();
+        f.Debug.log("Update");
     }
     /**
      *
