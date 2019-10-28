@@ -15,6 +15,9 @@ var L04_PongAnimated;
     const cmrPosition = 15;
     // let keysPressedInterface: KeyPressed = {};
     let keysPressed = new Set();
+    let leftPaddleBoundary = 0;
+    let rightPaddleBoundary = 0;
+    const paddleSpeed = 0.1;
     /**
      *
      * @param _event
@@ -23,7 +26,7 @@ var L04_PongAnimated;
         const canvas = document.querySelector("canvas");
         f.RenderManager.initialize();
         let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.WHITE));
-        paddleLeft = createQuadComponent("PaddeLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
+        paddleLeft = createQuadComponent("PaddleLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleLeft);
         paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleRight);
@@ -39,7 +42,7 @@ var L04_PongAnimated;
         f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
         boundary = new f.Vector2(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height);
         f.Loop.start();
-        L04_PongAnimated.viewport.draw();
+        // viewport.draw();
     }
     function hndlKeyDown(_event) {
         keysPressed.add(_event.code);
@@ -62,14 +65,23 @@ var L04_PongAnimated;
     function update(_event) {
         nodeBall.cmpTransform.local.translate(ballVector);
         ballMovement();
-        keysPressed.has(f.KEYBOARD_CODE.W) &&
-            paddleLeft.cmpTransform.local.translateY(0.1);
-        keysPressed.has(f.KEYBOARD_CODE.S) &&
-            paddleLeft.cmpTransform.local.translateY(-0.1);
-        keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) &&
-            paddleRight.cmpTransform.local.translateY(0.1);
-        keysPressed.has(f.KEYBOARD_CODE.ARROW_DOWN) &&
-            paddleRight.cmpTransform.local.translateY(-0.1);
+        if (keysPressed.has(f.KEYBOARD_CODE.W) && leftPaddleBoundary < 4) {
+            paddleLeft.cmpTransform.local.translateY(paddleSpeed);
+            leftPaddleBoundary += paddleSpeed;
+        }
+        if (keysPressed.has(f.KEYBOARD_CODE.S) && leftPaddleBoundary > -4) {
+            paddleLeft.cmpTransform.local.translateY(-paddleSpeed);
+            leftPaddleBoundary -= paddleSpeed;
+        }
+        if (keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) && rightPaddleBoundary < 4) {
+            paddleRight.cmpTransform.local.translateY(paddleSpeed);
+            rightPaddleBoundary += paddleSpeed;
+        }
+        if (keysPressed.has(f.KEYBOARD_CODE.ARROW_DOWN) &&
+            rightPaddleBoundary > -4) {
+            paddleRight.cmpTransform.local.translateY(-paddleSpeed);
+            rightPaddleBoundary -= paddleSpeed;
+        }
         f.RenderManager.update();
         L04_PongAnimated.viewport.draw();
     }

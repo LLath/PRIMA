@@ -24,6 +24,9 @@ namespace L04_PongAnimated {
 
   // let keysPressedInterface: KeyPressed = {};
   let keysPressed: Set<string> = new Set();
+  let leftPaddleBoundary: number = 0;
+  let rightPaddleBoundary: number = 0;
+  const paddleSpeed: number = 0.1;
 
   /**
    *
@@ -40,7 +43,7 @@ namespace L04_PongAnimated {
     );
 
     paddleLeft = createQuadComponent(
-      "PaddeLeft",
+      "PaddleLeft",
       material,
       new f.MeshQuad(),
       new f.Vector2(-7, 0),
@@ -85,7 +88,7 @@ namespace L04_PongAnimated {
     );
 
     f.Loop.start();
-    viewport.draw();
+    // viewport.draw();
   }
 
   function hndlKeyDown(_event: KeyboardEvent): void {
@@ -116,15 +119,32 @@ namespace L04_PongAnimated {
   function update(_event: Event): void {
     nodeBall.cmpTransform.local.translate(ballVector);
     ballMovement();
-    keysPressed.has(f.KEYBOARD_CODE.W) &&
-      paddleLeft.cmpTransform.local.translateY(0.1);
-    keysPressed.has(f.KEYBOARD_CODE.S) &&
-      paddleLeft.cmpTransform.local.translateY(-0.1);
-    keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) &&
-      paddleRight.cmpTransform.local.translateY(0.1);
-    keysPressed.has(f.KEYBOARD_CODE.ARROW_DOWN) &&
-      paddleRight.cmpTransform.local.translateY(-0.1);
+
+    if (keysPressed.has(f.KEYBOARD_CODE.W) && leftPaddleBoundary < 4) {
+      paddleLeft.cmpTransform.local.translateY(paddleSpeed);
+      leftPaddleBoundary += paddleSpeed;
+    }
+
+    if (keysPressed.has(f.KEYBOARD_CODE.S) && leftPaddleBoundary > -4) {
+      paddleLeft.cmpTransform.local.translateY(-paddleSpeed);
+      leftPaddleBoundary -= paddleSpeed;
+    }
+
+    if (keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) && rightPaddleBoundary < 4) {
+      paddleRight.cmpTransform.local.translateY(paddleSpeed);
+      rightPaddleBoundary += paddleSpeed;
+    }
+
+    if (
+      keysPressed.has(f.KEYBOARD_CODE.ARROW_DOWN) &&
+      rightPaddleBoundary > -4
+    ) {
+      paddleRight.cmpTransform.local.translateY(-paddleSpeed);
+      rightPaddleBoundary -= paddleSpeed;
+    }
+
     f.RenderManager.update();
+
     viewport.draw();
   }
 
