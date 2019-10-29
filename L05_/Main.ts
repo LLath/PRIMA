@@ -14,10 +14,12 @@ namespace L05_ {
   let nodeRoot: f.Node = new f.Node("Root");
 
   let ballVector: f.Vector3 = new f.Vector3(
-    (Math.random() * 2 - 1) / 2,
-    (Math.random() * 2 - 1) / 2,
+    (Math.random() * 2 - 1) / 5,
+    (Math.random() * 2 - 1) / 5,
     0
   );
+
+  let copyBallVector: f.Vector3 = ballVector.copy;
 
   let boundary: f.Vector2;
   const cmrPosition: number = 15;
@@ -27,6 +29,7 @@ namespace L05_ {
   let leftPaddlePosition: number = 0;
   let rightPaddlePosition: number = 0;
   const paddleSpeed: number = 0.2;
+  let restart: boolean = false;
 
   /**
    *
@@ -106,8 +109,14 @@ namespace L05_ {
     const xCalcBallBoundary: number = boundary.x / cmrPosition / 5;
     const yCalcBallBoundary: number = boundary.y / cmrPosition / 5;
 
-    if (xBallPosition > xCalcBallBoundary || xBallPosition < -xCalcBallBoundary)
-      ballVector.x = -ballVector.x;
+    if (
+      xBallPosition > xCalcBallBoundary ||
+      xBallPosition < -xCalcBallBoundary
+    ) {
+      ballVector.x = -xBallPosition;
+      ballVector.y = -yBallPosition;
+    }
+    // ballVector.x = -ballVector.x;
 
     if (yBallPosition > yCalcBallBoundary || yBallPosition < -yCalcBallBoundary)
       ballVector.y = -ballVector.y;
@@ -116,17 +125,30 @@ namespace L05_ {
   function update(_event: Event): void {
     const cmpPaddleLeft: f.Matrix4x4 = paddleLeft.cmpTransform.local;
     const cmpPaddleRight: f.Matrix4x4 = paddleRight.cmpTransform.local;
+    const yBallPosition: number = nodeBall.cmpTransform.local.translation.y;
     const yPaddleBoundary: number = boundary.x / cmrPosition / 5 / 2;
 
-    nodeBall.cmpTransform.local.translate(ballVector);
     ballMovement();
 
+    nodeBall.cmpTransform.local.translate(ballVector);
+
+    // console.log(ballVector.x);
+    // FIXME: Refactor into own Function
+    // Collision detection
     if (
-      leftPaddlePosition > nodeBall.cmpTransform.local.translation.y &&
-      leftPaddlePosition < nodeBall.cmpTransform.local.translation.y + 3 &&
+      leftPaddlePosition > yBallPosition - 2 &&
+      leftPaddlePosition < yBallPosition + 2 &&
       nodeBall.cmpTransform.local.translation.x < -7
     )
       ballVector.x = -ballVector.x;
+
+    if (
+      rightPaddlePosition > yBallPosition - 2 &&
+      rightPaddlePosition < yBallPosition + 2 &&
+      nodeBall.cmpTransform.local.translation.x > 7
+    )
+      ballVector.x = -ballVector.x;
+
     if (
       keysPressed.has(f.KEYBOARD_CODE.W) &&
       leftPaddlePosition < yPaddleBoundary

@@ -10,7 +10,8 @@ var L05_;
     let paddleRight = new f.Node("PaddleRight");
     let nodeBall = new f.Node("Ball");
     let nodeRoot = new f.Node("Root");
-    let ballVector = new f.Vector3((Math.random() * 2 - 1) / 2, (Math.random() * 2 - 1) / 2, 0);
+    let ballVector = new f.Vector3((Math.random() * 2 - 1) / 5, (Math.random() * 2 - 1) / 5, 0);
+    let copyBallVector = ballVector.copy;
     let boundary;
     const cmrPosition = 15;
     // let keysPressedInterface: KeyPressed = {};
@@ -18,6 +19,7 @@ var L05_;
     let leftPaddlePosition = 0;
     let rightPaddlePosition = 0;
     const paddleSpeed = 0.2;
+    let restart = false;
     /**
      *
      * @param _event
@@ -57,20 +59,32 @@ var L05_;
         const yBallPosition = nodeBall.cmpTransform.local.translation.y;
         const xCalcBallBoundary = boundary.x / cmrPosition / 5;
         const yCalcBallBoundary = boundary.y / cmrPosition / 5;
-        if (xBallPosition > xCalcBallBoundary || xBallPosition < -xCalcBallBoundary)
-            ballVector.x = -ballVector.x;
+        if (xBallPosition > xCalcBallBoundary ||
+            xBallPosition < -xCalcBallBoundary) {
+            ballVector.x = -xBallPosition;
+            ballVector.y = -yBallPosition;
+        }
+        // ballVector.x = -ballVector.x;
         if (yBallPosition > yCalcBallBoundary || yBallPosition < -yCalcBallBoundary)
             ballVector.y = -ballVector.y;
     }
     function update(_event) {
         const cmpPaddleLeft = paddleLeft.cmpTransform.local;
         const cmpPaddleRight = paddleRight.cmpTransform.local;
+        const yBallPosition = nodeBall.cmpTransform.local.translation.y;
         const yPaddleBoundary = boundary.x / cmrPosition / 5 / 2;
-        nodeBall.cmpTransform.local.translate(ballVector);
         ballMovement();
-        if (leftPaddlePosition > nodeBall.cmpTransform.local.translation.y &&
-            leftPaddlePosition < nodeBall.cmpTransform.local.translation.y + 3 &&
+        nodeBall.cmpTransform.local.translate(ballVector);
+        // console.log(ballVector.x);
+        // FIXME: Refactor into own Function
+        // Collision detection
+        if (leftPaddlePosition > yBallPosition - 2 &&
+            leftPaddlePosition < yBallPosition + 2 &&
             nodeBall.cmpTransform.local.translation.x < -7)
+            ballVector.x = -ballVector.x;
+        if (rightPaddlePosition > yBallPosition - 2 &&
+            rightPaddlePosition < yBallPosition + 2 &&
+            nodeBall.cmpTransform.local.translation.x > 7)
             ballVector.x = -ballVector.x;
         if (keysPressed.has(f.KEYBOARD_CODE.W) &&
             leftPaddlePosition < yPaddleBoundary) {
