@@ -17,7 +17,7 @@ var L05_;
     let keysPressed = new Set();
     let leftPaddlePosition = 0;
     let rightPaddlePosition = 0;
-    const paddleSpeed = 0.1;
+    const paddleSpeed = 0.2;
     /**
      *
      * @param _event
@@ -69,8 +69,8 @@ var L05_;
         nodeBall.cmpTransform.local.translate(ballVector);
         ballMovement();
         if (leftPaddlePosition > nodeBall.cmpTransform.local.translation.y &&
-            leftPaddlePosition < nodeBall.cmpTransform.local.translation.y + 1 &&
-            nodeBall.cmpTransform.local.translation.x < -6)
+            leftPaddlePosition < nodeBall.cmpTransform.local.translation.y + 3 &&
+            nodeBall.cmpTransform.local.translation.x < -7)
             ballVector.x = -ballVector.x;
         if (keysPressed.has(f.KEYBOARD_CODE.W) &&
             leftPaddlePosition < yPaddleBoundary) {

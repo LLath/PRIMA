@@ -26,7 +26,7 @@ namespace L05_ {
   let keysPressed: Set<string> = new Set();
   let leftPaddlePosition: number = 0;
   let rightPaddlePosition: number = 0;
-  const paddleSpeed: number = 0.1;
+  const paddleSpeed: number = 0.2;
 
   /**
    *
@@ -123,8 +123,8 @@ namespace L05_ {
 
     if (
       leftPaddlePosition > nodeBall.cmpTransform.local.translation.y &&
-      leftPaddlePosition < nodeBall.cmpTransform.local.translation.y + 1 &&
-      nodeBall.cmpTransform.local.translation.x < -6
+      leftPaddlePosition < nodeBall.cmpTransform.local.translation.y + 3 &&
+      nodeBall.cmpTransform.local.translation.x < -7
     )
       ballVector.x = -ballVector.x;
     if (
