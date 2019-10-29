@@ -5,44 +5,46 @@ var L05_;
     //   [code: string]: boolean;
     // }
     var f = FudgeCore;
-    window.addEventListener("load", hndLoad);
+    // Initializing nodes ---------------------------------------------------------------------------------------------
     let paddleLeft = new f.Node("PaddleLeft");
     let paddleRight = new f.Node("PaddleRight");
     let nodeBall = new f.Node("Ball");
     let nodeRoot = new f.Node("Root");
+    // Decleration of Vectors -------------------------------------------------------------------------------------------
     let ballVector = new f.Vector3((Math.random() * 2 - 1) / 5, (Math.random() * 2 - 1) / 5, 0);
-    let copyBallVector = ballVector.copy;
     let boundary;
+    // Constants --------------------------------------------------------------------------------------------------------
     const cmrPosition = 15;
-    // let keysPressedInterface: KeyPressed = {};
-    let keysPressed = new Set();
     let leftPaddlePosition = 0;
     let rightPaddlePosition = 0;
     const paddleSpeed = 0.2;
-    let restart = false;
-    /**
-     *
-     * @param _event
-     */
+    const ballSize = 0.2;
+    // let keysPressedInterface: KeyPressed = {};
+    let keysPressed = new Set();
+    window.addEventListener("load", hndLoad);
     function hndLoad(_event) {
         const canvas = document.querySelector("canvas");
+        boundary = new f.Vector2(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height);
         f.RenderManager.initialize();
+        // Create material and nodes --------------------------------------------------------------------------------------
         let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.WHITE));
         paddleLeft = createQuadComponent("PaddleLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleLeft);
         paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleRight);
-        nodeBall = createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(0.2, 0.2));
+        nodeBall = createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(ballSize, ballSize));
         nodeRoot.appendChild(nodeBall);
+        // Camera controls ------------------------------------------------------------------------------------------------
         let cmpCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(cmrPosition);
         L05_.viewport = new f.Viewport();
+        // EventListeners -------------------------------------------------------------------------------------------------
         document.addEventListener("keydown", hndlKeyDown);
         document.addEventListener("keyup", hndlKeyUp);
-        L05_.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
-        L05_.viewport.showSceneGraph();
         f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
-        boundary = new f.Vector2(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height);
+        L05_.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
+        // Debug ----------------------------------------------------------------------------------------------------------
+        L05_.viewport.showSceneGraph();
         f.Loop.start();
         // viewport.draw();
     }
@@ -57,35 +59,26 @@ var L05_;
     function ballMovement() {
         const xBallPosition = nodeBall.cmpTransform.local.translation.x;
         const yBallPosition = nodeBall.cmpTransform.local.translation.y;
-        const xCalcBallBoundary = boundary.x / cmrPosition / 5;
-        const yCalcBallBoundary = boundary.y / cmrPosition / 5;
+        const xCalcBallBoundary = (boundary.x / cmrPosition) * ballSize;
+        const yCalcBallBoundary = (boundary.y / cmrPosition) * ballSize - ballSize;
+        nodeBall.cmpTransform.local.translate(ballVector);
         if (xBallPosition > xCalcBallBoundary ||
             xBallPosition < -xCalcBallBoundary) {
-            ballVector.x = -xBallPosition;
-            ballVector.y = -yBallPosition;
+            const player = xBallPosition > 0 ? "1" : "2";
+            alert(`Point for Player ${player}`);
+            window.location.reload();
+            // ballVector.x = -ballVector.x;
         }
-        // ballVector.x = -ballVector.x;
         if (yBallPosition > yCalcBallBoundary || yBallPosition < -yCalcBallBoundary)
             ballVector.y = -ballVector.y;
     }
-    function update(_event) {
+    /**
+     * Controls W,S,ARROW_UP and ARROW_DOWN to move paddles
+     */
+    function keyBoardControl() {
         const cmpPaddleLeft = paddleLeft.cmpTransform.local;
         const cmpPaddleRight = paddleRight.cmpTransform.local;
-        const yBallPosition = nodeBall.cmpTransform.local.translation.y;
-        const yPaddleBoundary = boundary.x / cmrPosition / 5 / 2;
-        ballMovement();
-        nodeBall.cmpTransform.local.translate(ballVector);
-        // console.log(ballVector.x);
-        // FIXME: Refactor into own Function
-        // Collision detection
-        if (leftPaddlePosition > yBallPosition - 2 &&
-            leftPaddlePosition < yBallPosition + 2 &&
-            nodeBall.cmpTransform.local.translation.x < -7)
-            ballVector.x = -ballVector.x;
-        if (rightPaddlePosition > yBallPosition - 2 &&
-            rightPaddlePosition < yBallPosition + 2 &&
-            nodeBall.cmpTransform.local.translation.x > 7)
-            ballVector.x = -ballVector.x;
+        const yPaddleBoundary = ((boundary.x / cmrPosition) * ballSize) / 2;
         if (keysPressed.has(f.KEYBOARD_CODE.W) &&
             leftPaddlePosition < yPaddleBoundary) {
             cmpPaddleLeft.translateY(paddleSpeed);
@@ -106,6 +99,25 @@ var L05_;
             cmpPaddleRight.translateY(-paddleSpeed);
             rightPaddlePosition -= paddleSpeed;
         }
+    }
+    function collision() {
+        const yBallPosition = nodeBall.cmpTransform.local.translation.y;
+        if (leftPaddlePosition > yBallPosition - 2 &&
+            leftPaddlePosition < yBallPosition + 2 &&
+            nodeBall.cmpTransform.local.translation.x < -7)
+            ballVector.x = -(ballVector.x - 0.02);
+        if (rightPaddlePosition > yBallPosition - 2 &&
+            rightPaddlePosition < yBallPosition + 2 &&
+            nodeBall.cmpTransform.local.translation.x > 7)
+            ballVector.x = -(ballVector.x + 0.02);
+    }
+    function update(_event) {
+        // Functioncalls --------------------------------------------------------------------------------------------------
+        ballMovement();
+        keyBoardControl();
+        collision();
+        // Debug ----------------------------------------------------------------------------------------------------------
+        // console.log(ballVector.x);
         f.RenderManager.update();
         L05_.viewport.draw();
     }
