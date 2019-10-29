@@ -15,8 +15,8 @@ var L05_;
     const cmrPosition = 15;
     // let keysPressedInterface: KeyPressed = {};
     let keysPressed = new Set();
-    let leftPaddleBoundary = 0;
-    let rightPaddleBoundary = 0;
+    let leftPaddlePosition = 0;
+    let rightPaddlePosition = 0;
     const paddleSpeed = 0.1;
     /**
      *
@@ -53,34 +53,44 @@ var L05_;
         // keysPressedInterface[_event.code] = false;
     }
     function ballMovement() {
-        if (nodeBall.cmpTransform.local.translation.x >
-            boundary.x / cmrPosition / 5 ||
-            nodeBall.cmpTransform.local.translation.x < -boundary.x / cmrPosition / 5)
+        const xBallPosition = nodeBall.cmpTransform.local.translation.x;
+        const yBallPosition = nodeBall.cmpTransform.local.translation.y;
+        const xCalcBallBoundary = boundary.x / cmrPosition / 5;
+        const yCalcBallBoundary = boundary.y / cmrPosition / 5;
+        if (xBallPosition > xCalcBallBoundary || xBallPosition < -xCalcBallBoundary)
             ballVector.x = -ballVector.x;
-        if (nodeBall.cmpTransform.local.translation.y >
-            boundary.y / cmrPosition / 5 ||
-            nodeBall.cmpTransform.local.translation.y < -boundary.y / cmrPosition / 5)
+        if (yBallPosition > yCalcBallBoundary || yBallPosition < -yCalcBallBoundary)
             ballVector.y = -ballVector.y;
     }
     function update(_event) {
+        const cmpPaddleLeft = paddleLeft.cmpTransform.local;
+        const cmpPaddleRight = paddleRight.cmpTransform.local;
+        const yPaddleBoundary = boundary.x / cmrPosition / 5 / 2;
         nodeBall.cmpTransform.local.translate(ballVector);
         ballMovement();
-        if (keysPressed.has(f.KEYBOARD_CODE.W) && leftPaddleBoundary < 4) {
-            paddleLeft.cmpTransform.local.translateY(paddleSpeed);
-            leftPaddleBoundary += paddleSpeed;
+        if (leftPaddlePosition > nodeBall.cmpTransform.local.translation.y &&
+            leftPaddlePosition < nodeBall.cmpTransform.local.translation.y + 1 &&
+            nodeBall.cmpTransform.local.translation.x < -6)
+            ballVector.x = -ballVector.x;
+        if (keysPressed.has(f.KEYBOARD_CODE.W) &&
+            leftPaddlePosition < yPaddleBoundary) {
+            cmpPaddleLeft.translateY(paddleSpeed);
+            leftPaddlePosition += paddleSpeed;
         }
-        if (keysPressed.has(f.KEYBOARD_CODE.S) && leftPaddleBoundary > -4) {
-            paddleLeft.cmpTransform.local.translateY(-paddleSpeed);
-            leftPaddleBoundary -= paddleSpeed;
+        if (keysPressed.has(f.KEYBOARD_CODE.S) &&
+            leftPaddlePosition > -yPaddleBoundary) {
+            cmpPaddleLeft.translateY(-paddleSpeed);
+            leftPaddlePosition -= paddleSpeed;
         }
-        if (keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) && rightPaddleBoundary < 4) {
-            paddleRight.cmpTransform.local.translateY(paddleSpeed);
-            rightPaddleBoundary += paddleSpeed;
+        if (keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) &&
+            rightPaddlePosition < yPaddleBoundary) {
+            cmpPaddleRight.translateY(paddleSpeed);
+            rightPaddlePosition += paddleSpeed;
         }
         if (keysPressed.has(f.KEYBOARD_CODE.ARROW_DOWN) &&
-            rightPaddleBoundary > -4) {
-            paddleRight.cmpTransform.local.translateY(-paddleSpeed);
-            rightPaddleBoundary -= paddleSpeed;
+            rightPaddlePosition > -yPaddleBoundary) {
+            cmpPaddleRight.translateY(-paddleSpeed);
+            rightPaddlePosition -= paddleSpeed;
         }
         f.RenderManager.update();
         L05_.viewport.draw();
