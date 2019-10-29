@@ -1,3 +1,4 @@
+
 namespace L05_Reflection {
   // interface KeyPressed {
   //   [code: string]: boolean;
@@ -76,6 +77,10 @@ namespace L05_Reflection {
     );
     nodeRoot.appendChild(nodeBall);
 
+    // Praktikum Collision abfrage
+    // Eingrenzen der Fläche mit Objekten
+    // Eckpunkte suchen, dann daraus die Kanten bilden
+
     // Camera controls ------------------------------------------------------------------------------------------------
     let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
     cmpCamera.pivot.translateZ(CAMERA_POSITION);
@@ -94,6 +99,19 @@ namespace L05_Reflection {
     f.Loop.start();
     // viewport.draw();
   }
+
+  // TODO: refactor ballMovement and Collision into 1 Function
+  // function detectHit(_pos: f.Vector3, _mtxBox: f.Matrix4x4): boolean {
+  //   let translation: f.Vector3 = _mtxBox.translation;
+  //   let scaling: f.Vector3 = _mtxBox.scaling;
+  //   let scaledLine: number = translation.x * scaling.x;
+
+  //   if (_pos.x < scaledLine)
+  //     if (_pos.y < scaledLine)
+  //       ballVector.x = -(ballVector.x - 0.02);
+
+  //   return true;
+  // }
 
   function hndlKeyDown(_event: KeyboardEvent): void {
     keysPressed.add(_event.code);
@@ -119,14 +137,16 @@ namespace L05_Reflection {
       xBallPosition > xCalcBallBoundary ||
       xBallPosition < -xCalcBallBoundary
     ) {
-      const player: string = xBallPosition > 0 ? "1" : "2";
-      alert(`Point for Player ${player}`);
+      // const player: string = xBallPosition > 0 ? "1" : "2";
+      // alert(`Point for Player ${player}`);
       // window.location.reload();
       // ballVector.x = -ballVector.x;
     }
 
     if (yBallPosition > yCalcBallBoundary || yBallPosition < -yCalcBallBoundary)
       ballVector.y = -ballVector.y;
+
+
   }
 
   /**
@@ -170,6 +190,8 @@ namespace L05_Reflection {
     }
   }
 
+  // TODO: Spielfeld aufbauen 
+  // implement Score 
   function collision(): void {
     const yBallPosition: number = nodeBall.cmpTransform.local.translation.y;
 
@@ -177,8 +199,10 @@ namespace L05_Reflection {
       leftPaddlePosition > yBallPosition - 2 &&
       leftPaddlePosition < yBallPosition + 2 &&
       nodeBall.cmpTransform.local.translation.x < -7
-    )
+    ) {
       ballVector.x = -(ballVector.x - 0.02);
+      if (leftPaddlePosition > yBallPosition - 2 )
+      ballVector.y = -ballVector.y; }
     if (
       rightPaddlePosition > yBallPosition - 2 &&
       rightPaddlePosition < yBallPosition + 2 &&
@@ -190,6 +214,9 @@ namespace L05_Reflection {
   function update(_event: Event): void {
     nodeBall.cmpTransform.local.translate(ballVector);
 
+    // detectHit(nodeBall.cmpTransform.local.translation, paddleLeft.cmpTransform.local);
+    // detectHit(nodeBall.cmpTransform.local.translation, paddleRight.cmpTransform.local);
+    
     ballMovement();
     keyBoardControl();
     collision();
