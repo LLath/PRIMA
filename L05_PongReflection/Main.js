@@ -1,6 +1,6 @@
 "use strict";
-var L05_;
-(function (L05_) {
+var L05_Reflection;
+(function (L05_Reflection) {
     // interface KeyPressed {
     //   [code: string]: boolean;
     // }
@@ -13,12 +13,12 @@ var L05_;
     // Decleration of Vectors -------------------------------------------------------------------------------------------
     let ballVector = new f.Vector3((Math.random() * 2 - 1) / 5, (Math.random() * 2 - 1) / 5, 0);
     let boundary;
-    // Constants --------------------------------------------------------------------------------------------------------
-    const cmrPosition = 15;
     let leftPaddlePosition = 0;
     let rightPaddlePosition = 0;
-    const paddleSpeed = 0.2;
-    const ballSize = 0.2;
+    // Constants --------------------------------------------------------------------------------------------------------
+    const CAMERA_POSITION = 15;
+    const PADDLE_SPEED = 0.2;
+    const BALL_SIZE = 0.2;
     // let keysPressedInterface: KeyPressed = {};
     let keysPressed = new Set();
     window.addEventListener("load", hndLoad);
@@ -32,19 +32,19 @@ var L05_;
         nodeRoot.appendChild(paddleLeft);
         paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleRight);
-        nodeBall = createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(ballSize, ballSize));
+        nodeBall = createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(BALL_SIZE, BALL_SIZE));
         nodeRoot.appendChild(nodeBall);
         // Camera controls ------------------------------------------------------------------------------------------------
         let cmpCamera = new f.ComponentCamera();
-        cmpCamera.pivot.translateZ(cmrPosition);
-        L05_.viewport = new f.Viewport();
+        cmpCamera.pivot.translateZ(CAMERA_POSITION);
+        L05_Reflection.viewport = new f.Viewport();
         // EventListeners -------------------------------------------------------------------------------------------------
         document.addEventListener("keydown", hndlKeyDown);
         document.addEventListener("keyup", hndlKeyUp);
         f.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
-        L05_.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
+        L05_Reflection.viewport.initialize("Viewport", nodeRoot, cmpCamera, canvas);
         // Debug ----------------------------------------------------------------------------------------------------------
-        L05_.viewport.showSceneGraph();
+        L05_Reflection.viewport.showSceneGraph();
         f.Loop.start();
         // viewport.draw();
     }
@@ -56,17 +56,20 @@ var L05_;
         keysPressed.delete(_event.code);
         // keysPressedInterface[_event.code] = false;
     }
+    /**
+     * Ball collision with Walls
+     * Changes x to -x / y to -y
+     */
     function ballMovement() {
         const xBallPosition = nodeBall.cmpTransform.local.translation.x;
         const yBallPosition = nodeBall.cmpTransform.local.translation.y;
-        const xCalcBallBoundary = (boundary.x / cmrPosition) * ballSize;
-        const yCalcBallBoundary = (boundary.y / cmrPosition) * ballSize - ballSize;
-        nodeBall.cmpTransform.local.translate(ballVector);
+        const xCalcBallBoundary = (boundary.x / CAMERA_POSITION) * BALL_SIZE;
+        const yCalcBallBoundary = (boundary.y / CAMERA_POSITION) * BALL_SIZE - BALL_SIZE;
         if (xBallPosition > xCalcBallBoundary ||
             xBallPosition < -xCalcBallBoundary) {
             const player = xBallPosition > 0 ? "1" : "2";
             alert(`Point for Player ${player}`);
-            window.location.reload();
+            // window.location.reload();
             // ballVector.x = -ballVector.x;
         }
         if (yBallPosition > yCalcBallBoundary || yBallPosition < -yCalcBallBoundary)
@@ -78,26 +81,26 @@ var L05_;
     function keyBoardControl() {
         const cmpPaddleLeft = paddleLeft.cmpTransform.local;
         const cmpPaddleRight = paddleRight.cmpTransform.local;
-        const yPaddleBoundary = ((boundary.x / cmrPosition) * ballSize) / 2;
+        const yPaddleBoundary = ((boundary.x / CAMERA_POSITION) * BALL_SIZE) / 2;
         if (keysPressed.has(f.KEYBOARD_CODE.W) &&
             leftPaddlePosition < yPaddleBoundary) {
-            cmpPaddleLeft.translateY(paddleSpeed);
-            leftPaddlePosition += paddleSpeed;
+            cmpPaddleLeft.translateY(PADDLE_SPEED);
+            leftPaddlePosition += PADDLE_SPEED;
         }
         if (keysPressed.has(f.KEYBOARD_CODE.S) &&
             leftPaddlePosition > -yPaddleBoundary) {
-            cmpPaddleLeft.translateY(-paddleSpeed);
-            leftPaddlePosition -= paddleSpeed;
+            cmpPaddleLeft.translateY(-PADDLE_SPEED);
+            leftPaddlePosition -= PADDLE_SPEED;
         }
         if (keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) &&
             rightPaddlePosition < yPaddleBoundary) {
-            cmpPaddleRight.translateY(paddleSpeed);
-            rightPaddlePosition += paddleSpeed;
+            cmpPaddleRight.translateY(PADDLE_SPEED);
+            rightPaddlePosition += PADDLE_SPEED;
         }
         if (keysPressed.has(f.KEYBOARD_CODE.ARROW_DOWN) &&
             rightPaddlePosition > -yPaddleBoundary) {
-            cmpPaddleRight.translateY(-paddleSpeed);
-            rightPaddlePosition -= paddleSpeed;
+            cmpPaddleRight.translateY(-PADDLE_SPEED);
+            rightPaddlePosition -= PADDLE_SPEED;
         }
     }
     function collision() {
@@ -112,14 +115,13 @@ var L05_;
             ballVector.x = -(ballVector.x + 0.02);
     }
     function update(_event) {
-        // Functioncalls --------------------------------------------------------------------------------------------------
+        nodeBall.cmpTransform.local.translate(ballVector);
         ballMovement();
         keyBoardControl();
         collision();
-        // Debug ----------------------------------------------------------------------------------------------------------
         // console.log(ballVector.x);
         f.RenderManager.update();
-        L05_.viewport.draw();
+        L05_Reflection.viewport.draw();
     }
     /**
      *
@@ -143,5 +145,5 @@ var L05_;
         node.cmpTransform.local.translate(pos);
         return node;
     }
-})(L05_ || (L05_ = {}));
+})(L05_Reflection || (L05_Reflection = {}));
 //# sourceMappingURL=Main.js.map

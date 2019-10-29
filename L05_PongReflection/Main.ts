@@ -1,4 +1,4 @@
-namespace L05_ {
+namespace L05_Reflection {
   // interface KeyPressed {
   //   [code: string]: boolean;
   // }
@@ -21,12 +21,13 @@ namespace L05_ {
   );
   let boundary: f.Vector2;
 
-  // Constants --------------------------------------------------------------------------------------------------------
-  const cmrPosition: number = 15;
   let leftPaddlePosition: number = 0;
   let rightPaddlePosition: number = 0;
-  const paddleSpeed: number = 0.2;
-  const ballSize: number = 0.2;
+ 
+  // Constants --------------------------------------------------------------------------------------------------------
+  const CAMERA_POSITION: number = 15;
+  const PADDLE_SPEED: number = 0.2;
+  const BALL_SIZE: number = 0.2;
 
   // let keysPressedInterface: KeyPressed = {};
   let keysPressed: Set<string> = new Set();
@@ -71,13 +72,13 @@ namespace L05_ {
       material,
       new f.MeshQuad(),
       new f.Vector2(0, 0),
-      new f.Vector2(ballSize, ballSize)
+      new f.Vector2(BALL_SIZE, BALL_SIZE)
     );
     nodeRoot.appendChild(nodeBall);
 
     // Camera controls ------------------------------------------------------------------------------------------------
     let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
-    cmpCamera.pivot.translateZ(cmrPosition);
+    cmpCamera.pivot.translateZ(CAMERA_POSITION);
     viewport = new f.Viewport();
 
     // EventListeners -------------------------------------------------------------------------------------------------
@@ -103,14 +104,16 @@ namespace L05_ {
     // keysPressedInterface[_event.code] = false;
   }
 
+  /**
+   * Ball collision with Walls
+   * Changes x to -x / y to -y
+   */
   function ballMovement(): void {
     const xBallPosition: number = nodeBall.cmpTransform.local.translation.x;
     const yBallPosition: number = nodeBall.cmpTransform.local.translation.y;
-    const xCalcBallBoundary: number = (boundary.x / cmrPosition) * ballSize;
+    const xCalcBallBoundary: number = (boundary.x / CAMERA_POSITION) * BALL_SIZE;
     const yCalcBallBoundary: number =
-      (boundary.y / cmrPosition) * ballSize - ballSize;
-
-    nodeBall.cmpTransform.local.translate(ballVector);
+      (boundary.y / CAMERA_POSITION) * BALL_SIZE - BALL_SIZE;
 
     if (
       xBallPosition > xCalcBallBoundary ||
@@ -118,7 +121,7 @@ namespace L05_ {
     ) {
       const player: string = xBallPosition > 0 ? "1" : "2";
       alert(`Point for Player ${player}`);
-      window.location.reload();
+      // window.location.reload();
       // ballVector.x = -ballVector.x;
     }
 
@@ -132,38 +135,38 @@ namespace L05_ {
   function keyBoardControl(): void {
     const cmpPaddleLeft: f.Matrix4x4 = paddleLeft.cmpTransform.local;
     const cmpPaddleRight: f.Matrix4x4 = paddleRight.cmpTransform.local;
-    const yPaddleBoundary: number = ((boundary.x / cmrPosition) * ballSize) / 2;
+    const yPaddleBoundary: number = ((boundary.x / CAMERA_POSITION) * BALL_SIZE) / 2;
 
     if (
       keysPressed.has(f.KEYBOARD_CODE.W) &&
       leftPaddlePosition < yPaddleBoundary
     ) {
-      cmpPaddleLeft.translateY(paddleSpeed);
-      leftPaddlePosition += paddleSpeed;
+      cmpPaddleLeft.translateY(PADDLE_SPEED);
+      leftPaddlePosition += PADDLE_SPEED;
     }
 
     if (
       keysPressed.has(f.KEYBOARD_CODE.S) &&
       leftPaddlePosition > -yPaddleBoundary
     ) {
-      cmpPaddleLeft.translateY(-paddleSpeed);
-      leftPaddlePosition -= paddleSpeed;
+      cmpPaddleLeft.translateY(-PADDLE_SPEED);
+      leftPaddlePosition -= PADDLE_SPEED;
     }
 
     if (
       keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) &&
       rightPaddlePosition < yPaddleBoundary
     ) {
-      cmpPaddleRight.translateY(paddleSpeed);
-      rightPaddlePosition += paddleSpeed;
+      cmpPaddleRight.translateY(PADDLE_SPEED);
+      rightPaddlePosition += PADDLE_SPEED;
     }
 
     if (
       keysPressed.has(f.KEYBOARD_CODE.ARROW_DOWN) &&
       rightPaddlePosition > -yPaddleBoundary
     ) {
-      cmpPaddleRight.translateY(-paddleSpeed);
-      rightPaddlePosition -= paddleSpeed;
+      cmpPaddleRight.translateY(-PADDLE_SPEED);
+      rightPaddlePosition -= PADDLE_SPEED;
     }
   }
 
@@ -185,12 +188,12 @@ namespace L05_ {
   }
 
   function update(_event: Event): void {
-    // Functioncalls --------------------------------------------------------------------------------------------------
+    nodeBall.cmpTransform.local.translate(ballVector);
+
     ballMovement();
     keyBoardControl();
     collision();
 
-    // Debug ----------------------------------------------------------------------------------------------------------
     // console.log(ballVector.x);
 
     f.RenderManager.update();
