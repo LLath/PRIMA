@@ -1,4 +1,3 @@
-
 namespace L05_Reflection {
   // interface KeyPressed {
   //   [code: string]: boolean;
@@ -24,6 +23,7 @@ namespace L05_Reflection {
 
   let leftPaddlePosition: number = 0;
   let rightPaddlePosition: number = 0;
+  let score: number = 0;
  
   // Constants --------------------------------------------------------------------------------------------------------
   const CAMERA_POSITION: number = 15;
@@ -51,7 +51,7 @@ namespace L05_Reflection {
     );
 
     paddleLeft = createQuadComponent(
-      "PaddleLeft",
+      paddleLeft.name,
       material,
       new f.MeshQuad(),
       new f.Vector2(-7, 0),
@@ -60,7 +60,7 @@ namespace L05_Reflection {
     nodeRoot.appendChild(paddleLeft);
 
     paddleRight = createQuadComponent(
-      "PaddleRight",
+      paddleRight.name,
       material,
       new f.MeshQuad(),
       new f.Vector2(7, 0),
@@ -96,22 +96,15 @@ namespace L05_Reflection {
     // Debug ----------------------------------------------------------------------------------------------------------
     viewport.showSceneGraph();
 
+    // INVERSION 
+    let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
+    ctx.lineWidth = 10;
+    ctx.fillText(score.toString(), 2, 1);
+    ctx.strokeRect(75, 140, 150, 110);
+    ctx.stroke();
+
     f.Loop.start();
-    // viewport.draw();
   }
-
-  // TODO: refactor ballMovement and Collision into 1 Function
-  // function detectHit(_pos: f.Vector3, _mtxBox: f.Matrix4x4): boolean {
-  //   let translation: f.Vector3 = _mtxBox.translation;
-  //   let scaling: f.Vector3 = _mtxBox.scaling;
-  //   let scaledLine: number = translation.x * scaling.x;
-
-  //   if (_pos.x < scaledLine)
-  //     if (_pos.y < scaledLine)
-  //       ballVector.x = -(ballVector.x - 0.02);
-
-  //   return true;
-  // }
 
   function hndlKeyDown(_event: KeyboardEvent): void {
     keysPressed.add(_event.code);
@@ -137,22 +130,18 @@ namespace L05_Reflection {
       xBallPosition > xCalcBallBoundary ||
       xBallPosition < -xCalcBallBoundary
     ) {
-      // const player: string = xBallPosition > 0 ? "1" : "2";
-      // alert(`Point for Player ${player}`);
-      // window.location.reload();
-      // ballVector.x = -ballVector.x;
+      // score++;
+      ballVector.x = -ballVector.x;
     }
 
     if (yBallPosition > yCalcBallBoundary || yBallPosition < -yCalcBallBoundary)
       ballVector.y = -ballVector.y;
-
-
   }
 
   /**
    * Controls W,S,ARROW_UP and ARROW_DOWN to move paddles
    */
-  function keyBoardControl(): void {
+  function keybordControl(): void {
     const cmpPaddleLeft: f.Matrix4x4 = paddleLeft.cmpTransform.local;
     const cmpPaddleRight: f.Matrix4x4 = paddleRight.cmpTransform.local;
     const yPaddleBoundary: number = ((boundary.x / CAMERA_POSITION) * BALL_SIZE) / 2;
@@ -190,8 +179,6 @@ namespace L05_Reflection {
     }
   }
 
-  // TODO: Spielfeld aufbauen 
-  // implement Score 
   function collision(): void {
     const yBallPosition: number = nodeBall.cmpTransform.local.translation.y;
 
@@ -214,14 +201,12 @@ namespace L05_Reflection {
   function update(_event: Event): void {
     nodeBall.cmpTransform.local.translate(ballVector);
 
-    // detectHit(nodeBall.cmpTransform.local.translation, paddleLeft.cmpTransform.local);
-    // detectHit(nodeBall.cmpTransform.local.translation, paddleRight.cmpTransform.local);
-    
     ballMovement();
-    keyBoardControl();
+    keybordControl();
     collision();
 
-    // console.log(ballVector.x);
+    document.querySelector("canvas").innerText = score.toString();
+
 
     f.RenderManager.update();
     viewport.draw();
@@ -250,12 +235,12 @@ namespace L05_Reflection {
     const scale: f.Vector3 = new f.Vector3(_scale.x, _scale.y, 0);
     const pos: f.Vector3 = new f.Vector3(_pos.x, _pos.y, 0);
 
-    cmpMesh.pivot.scale(scale);
 
     node.addComponent(cmpMesh);
     node.addComponent(cmpMaterial);
     node.addComponent(new f.ComponentTransform());
     node.cmpTransform.local.translate(pos);
+    node.cmpTransform.local.scale(scale);
     return node;
   }
 }
