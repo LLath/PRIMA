@@ -1,6 +1,6 @@
 "use strict";
-var L08_FudgeCraft_Movement;
-(function (L08_FudgeCraft_Movement) {
+var L10_FudgeCamera;
+(function (L10_FudgeCamera) {
     // TODO: extends Map
     class Grid {
         constructor() {
@@ -21,6 +21,6 @@ var L08_FudgeCraft_Movement;
             return this.grid.has(_position);
         }
     }
-    L08_FudgeCraft_Movement.Grid = Grid;
-})(L08_FudgeCraft_Movement || (L08_FudgeCraft_Movement = {}));
+    L10_FudgeCamera.Grid = Grid;
+})(L10_FudgeCamera || (L10_FudgeCamera = {}));
 //# sourceMappingURL=Grid.js.map

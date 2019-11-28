@@ -1,4 +1,4 @@
-declare namespace L08_FudgeCraft_Movement {
+declare namespace L10_FudgeCamera {
     class Grid {
         private grid;
         setFragment(_fragment: Fragment): void;

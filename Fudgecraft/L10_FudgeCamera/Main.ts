@@ -1,23 +1,25 @@
-namespace L08_FudgeCraft_Movement {
+namespace L10_FudgeCamera {
   import f = FudgeCore;
 
-  // FIXME: New Version of Fudge pls
-  window.addEventListener("load", hndLoad);
   let viewport: f.Viewport;
   let game: f.Node;
   let rotate: f.Vector3;
   let cmpCamera: f.ComponentCamera;
   let fragment: Fragment;
   let grid: Grid = new Grid();
+  // FIXME: New Version of Fudge pls
+  window.addEventListener("load", hndLoad);
 
   function hndLoad(_event: Event): void {
     const canvas: HTMLCanvasElement = document.querySelector("canvas");
     f.RenderManager.initialize(true);
     f.Debug.log("Canvas", canvas);
 
-    cmpCamera = new f.ComponentCamera();
-    cmpCamera.pivot.translate(new f.Vector3(5, 15, 20));
-    cmpCamera.pivot.lookAt(f.Vector3.ZERO());
+    let camera: CameraOrbit = new CameraOrbit(75);
+
+    // cmpCamera = new f.ComponentCamera();
+    // cmpCamera.pivot.translate(new f.Vector3(5, 15, 20));
+    // cmpCamera.pivot.lookAt(f.Vector3.ZERO());
 
     game = new f.Node("FudgeCraft");
     fragment = new Fragment(0);
@@ -49,7 +51,7 @@ namespace L08_FudgeCraft_Movement {
     game.addComponent(cmpLight);
 
     viewport = new f.Viewport();
-    viewport.initialize("Viewport", game, cmpCamera, canvas);
+    viewport.initialize("Viewport", game, camera.cmpCamera, canvas);
     f.Debug.log("Viewport", viewport);
 
     viewport.draw();

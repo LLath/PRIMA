@@ -1,4 +1,4 @@
-declare namespace L08_FudgeCraft_Movement {
+declare namespace L10_FudgeCamera {
     import f = FudgeCore;
     class Fragment extends f.Node {
         private static shapes;

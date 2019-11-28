@@ -1,4 +1,4 @@
-declare namespace L08_FudgeCraft_Movement {
+declare namespace L10_FudgeCamera {
     import f = FudgeCore;
     enum CUBE_TYPE {
         GREEN = "Green",

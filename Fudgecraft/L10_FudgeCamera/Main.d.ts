@@ -1,2 +1,2 @@
-declare namespace L08_FudgeCraft_Movement {
+declare namespace L10_FudgeCamera {
 }

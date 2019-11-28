@@ -1,6 +1,6 @@
 "use strict";
-var L08_FudgeCraft_Movement;
-(function (L08_FudgeCraft_Movement) {
+var L10_FudgeCamera;
+(function (L10_FudgeCamera) {
     var f = FudgeCore;
     class Fragment extends f.Node {
         constructor(_shape) {
@@ -11,7 +11,7 @@ var L08_FudgeCraft_Movement;
             for (let position of shape) {
                 let vctPosition = f.Vector3.ZERO();
                 vctPosition.set(position[0], position[1], position[2]);
-                let cube = new L08_FudgeCraft_Movement.Cube(type, vctPosition);
+                let cube = new L10_FudgeCamera.Cube(type, vctPosition);
                 this.appendChild(cube);
             }
         }
@@ -76,19 +76,19 @@ var L08_FudgeCraft_Movement;
         // }
         static getShapeToCubeType() {
             return new Map([
-                [0, L08_FudgeCraft_Movement.CUBE_TYPE.GRAY],
-                [1, L08_FudgeCraft_Movement.CUBE_TYPE.CYAN],
-                [2, L08_FudgeCraft_Movement.CUBE_TYPE.YELLOW],
-                [3, L08_FudgeCraft_Movement.CUBE_TYPE.MAGENTA],
-                [4, L08_FudgeCraft_Movement.CUBE_TYPE.RED],
-                [5, L08_FudgeCraft_Movement.CUBE_TYPE.BLUE],
-                [6, L08_FudgeCraft_Movement.CUBE_TYPE.ORANGE],
-                [7, L08_FudgeCraft_Movement.CUBE_TYPE.GREEN]
+                [0, L10_FudgeCamera.CUBE_TYPE.GRAY],
+                [1, L10_FudgeCamera.CUBE_TYPE.CYAN],
+                [2, L10_FudgeCamera.CUBE_TYPE.YELLOW],
+                [3, L10_FudgeCamera.CUBE_TYPE.MAGENTA],
+                [4, L10_FudgeCamera.CUBE_TYPE.RED],
+                [5, L10_FudgeCamera.CUBE_TYPE.BLUE],
+                [6, L10_FudgeCamera.CUBE_TYPE.ORANGE],
+                [7, L10_FudgeCamera.CUBE_TYPE.GREEN]
             ]);
         }
     }
     Fragment.shapes = Fragment.getShapeArray();
     Fragment.shapeToCubeType = Fragment.getShapeToCubeType();
-    L08_FudgeCraft_Movement.Fragment = Fragment;
-})(L08_FudgeCraft_Movement || (L08_FudgeCraft_Movement = {}));
+    L10_FudgeCamera.Fragment = Fragment;
+})(L10_FudgeCamera || (L10_FudgeCamera = {}));
 //# sourceMappingURL=Fragment.js.map
