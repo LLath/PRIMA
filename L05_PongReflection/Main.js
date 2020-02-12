@@ -19,24 +19,16 @@ var L05_Reflection;
     const CAMERA_POSITION = 15;
     const PADDLE_SPEED = 0.2;
     const BALL_SIZE = 0.2;
+    const PADDLE_POSITION_X = 7;
+    const PADDLE_HEIGHT = 3;
     // let keysPressedInterface: KeyPressed = {};
     let keysPressed = new Set();
     window.addEventListener("load", hndLoad);
     function hndLoad(_event) {
         const canvas = document.querySelector("canvas");
-        boundary = new f.Vector2(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height);
         f.RenderManager.initialize();
         // Create material and nodes --------------------------------------------------------------------------------------
-        let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.WHITE));
-        paddleLeft = createQuadComponent("PaddleLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
-        nodeRoot.appendChild(paddleLeft);
-        paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
-        nodeRoot.appendChild(paddleRight);
-        nodeBall = createQuadComponent("Ball", material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(BALL_SIZE, BALL_SIZE));
-        nodeRoot.appendChild(nodeBall);
-        // Praktikum Collision abfrage
-        // Eingrenzen der Fläche mit Objekten
-        // Eckpunkte suchen, dann daraus die Kanten bilden
+        createObjects();
         // Camera controls ------------------------------------------------------------------------------------------------
         let cmpCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(CAMERA_POSITION);
@@ -49,18 +41,16 @@ var L05_Reflection;
         // Debug ----------------------------------------------------------------------------------------------------------
         L05_Reflection.viewport.showSceneGraph();
         f.Loop.start();
-        // viewport.draw();
     }
-    // TODO: refactor ballMovement and Collision into 1 Function
-    // function detectHit(_pos: f.Vector3, _mtxBox: f.Matrix4x4): boolean {
-    //   let translation: f.Vector3 = _mtxBox.translation;
-    //   let scaling: f.Vector3 = _mtxBox.scaling;
-    //   let scaledLine: number = translation.x * scaling.x;
-    //   if (_pos.x < scaledLine)
-    //     if (_pos.y < scaledLine)
-    //       ballVector.x = -(ballVector.x - 0.02);
-    //   return true;
-    // }
+    function createObjects() {
+        let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.WHITE));
+        paddleLeft = createQuadComponent(paddleLeft.name, material, new f.MeshQuad(), new f.Vector2(-PADDLE_POSITION_X, 0), new f.Vector2(0.05, PADDLE_HEIGHT));
+        nodeRoot.appendChild(paddleLeft);
+        paddleRight = createQuadComponent(paddleRight.name, material, new f.MeshQuad(), new f.Vector2(PADDLE_POSITION_X, 0), new f.Vector2(0.05, PADDLE_HEIGHT));
+        nodeRoot.appendChild(paddleRight);
+        nodeBall = createQuadComponent(nodeBall.name, material, new f.MeshQuad(), new f.Vector2(0, 0), new f.Vector2(BALL_SIZE, BALL_SIZE));
+        nodeRoot.appendChild(nodeBall);
+    }
     function hndlKeyDown(_event) {
         keysPressed.add(_event.code);
         // keysPressedInterface[_event.code] = true;
@@ -73,73 +63,74 @@ var L05_Reflection;
      * Ball collision with Walls
      * Changes x to -x / y to -y
      */
-    function ballMovement() {
-        const xBallPosition = nodeBall.cmpTransform.local.translation.x;
-        const yBallPosition = nodeBall.cmpTransform.local.translation.y;
-        const xCalcBallBoundary = (boundary.x / CAMERA_POSITION) * BALL_SIZE;
-        const yCalcBallBoundary = (boundary.y / CAMERA_POSITION) * BALL_SIZE - BALL_SIZE;
-        if (xBallPosition > xCalcBallBoundary ||
-            xBallPosition < -xCalcBallBoundary) {
+    function boundaryDetection(_node) {
+        const nodeLocal = _node.cmpTransform.local;
+        const canvas = document.querySelector("canvas");
+        boundary = new f.Vector2(canvas.clientWidth, canvas.clientHeight);
+        const nodeScaling = nodeLocal.scaling;
+        const xPosition = nodeLocal.translation.x;
+        const yPosition = nodeLocal.translation.y;
+        const xBoundary = (boundary.x / CAMERA_POSITION) * nodeScaling.x;
+        const yBoundary = (boundary.y / CAMERA_POSITION) * nodeScaling.y - nodeScaling.y;
+        if (xPosition > xBoundary || xPosition < -xBoundary) {
             // const player: string = xBallPosition > 0 ? "1" : "2";
             // alert(`Point for Player ${player}`);
             // window.location.reload();
             // ballVector.x = -ballVector.x;
         }
-        if (yBallPosition > yCalcBallBoundary || yBallPosition < -yCalcBallBoundary)
+        if (yPosition > yBoundary || yPosition < -yBoundary)
             ballVector.y = -ballVector.y;
     }
     /**
      * Controls W,S,ARROW_UP and ARROW_DOWN to move paddles
      */
-    function keyBoardControl() {
-        const cmpPaddleLeft = paddleLeft.cmpTransform.local;
-        const cmpPaddleRight = paddleRight.cmpTransform.local;
-        const yPaddleBoundary = ((boundary.x / CAMERA_POSITION) * BALL_SIZE) / 2;
-        if (keysPressed.has(f.KEYBOARD_CODE.W) &&
-            leftPaddlePosition < yPaddleBoundary) {
-            cmpPaddleLeft.translateY(PADDLE_SPEED);
+    function keyBoardControl(_player1, _player2) {
+        console.log(_player1.translation.y);
+        const yBoundary = boundary.y / CAMERA_POSITION / _player1.scaling.y - _player1.scaling.y;
+        // Player 1 W and S
+        if (keysPressed.has(f.KEYBOARD_CODE.W) && leftPaddlePosition < yBoundary) {
+            _player1.translateY(PADDLE_SPEED);
             leftPaddlePosition += PADDLE_SPEED;
         }
-        if (keysPressed.has(f.KEYBOARD_CODE.S) &&
-            leftPaddlePosition > -yPaddleBoundary) {
-            cmpPaddleLeft.translateY(-PADDLE_SPEED);
+        if (keysPressed.has(f.KEYBOARD_CODE.S) && leftPaddlePosition > -yBoundary) {
+            _player1.translateY(-PADDLE_SPEED);
             leftPaddlePosition -= PADDLE_SPEED;
         }
+        // Player 2 ARROW_UP and ARROW_DOWN
         if (keysPressed.has(f.KEYBOARD_CODE.ARROW_UP) &&
-            rightPaddlePosition < yPaddleBoundary) {
-            cmpPaddleRight.translateY(PADDLE_SPEED);
+            rightPaddlePosition < yBoundary) {
+            _player2.translateY(PADDLE_SPEED);
             rightPaddlePosition += PADDLE_SPEED;
         }
         if (keysPressed.has(f.KEYBOARD_CODE.ARROW_DOWN) &&
-            rightPaddlePosition > -yPaddleBoundary) {
-            cmpPaddleRight.translateY(-PADDLE_SPEED);
+            rightPaddlePosition > -yBoundary) {
+            _player2.translateY(-PADDLE_SPEED);
             rightPaddlePosition -= PADDLE_SPEED;
         }
     }
-    // TODO: Spielfeld aufbauen 
-    // implement Score 
-    function collision() {
-        const yBallPosition = nodeBall.cmpTransform.local.translation.y;
-        if (leftPaddlePosition > yBallPosition - 2 &&
-            leftPaddlePosition < yBallPosition + 2 &&
-            nodeBall.cmpTransform.local.translation.x < -7) {
+    function hitDetection(_node) {
+        const yPosition = _node.cmpTransform.local.translation.y;
+        const paddleHeight = PADDLE_HEIGHT - 1.5;
+        if (positionCheck(leftPaddlePosition, -PADDLE_POSITION_X)) {
             ballVector.x = -(ballVector.x - 0.02);
-            if (leftPaddlePosition > yBallPosition - 2)
+            if (leftPaddlePosition > yPosition - 2)
                 ballVector.y = -ballVector.y;
         }
-        if (rightPaddlePosition > yBallPosition - 2 &&
-            rightPaddlePosition < yBallPosition + 2 &&
-            nodeBall.cmpTransform.local.translation.x > 7)
+        if (positionCheck(rightPaddlePosition, PADDLE_POSITION_X))
             ballVector.x = -(ballVector.x + 0.02);
+        function positionCheck(_position, _xPosition) {
+            return (leftPaddlePosition - paddleHeight < yPosition + 1 &&
+                leftPaddlePosition + paddleHeight > yPosition - 1 &&
+                (_xPosition > 0
+                    ? _node.cmpTransform.local.translation.x > _xPosition
+                    : _node.cmpTransform.local.translation.x < _xPosition));
+        }
     }
     function update(_event) {
         nodeBall.cmpTransform.local.translate(ballVector);
-        // detectHit(nodeBall.cmpTransform.local.translation, paddleLeft.cmpTransform.local);
-        // detectHit(nodeBall.cmpTransform.local.translation, paddleRight.cmpTransform.local);
-        ballMovement();
-        keyBoardControl();
-        collision();
-        // console.log(ballVector.x);
+        boundaryDetection(nodeBall);
+        keyBoardControl(paddleLeft.cmpTransform.local, paddleRight.cmpTransform.local);
+        hitDetection(nodeBall);
         f.RenderManager.update();
         L05_Reflection.viewport.draw();
     }
@@ -158,11 +149,11 @@ var L05_Reflection;
         // transform _scale and _pos to Vector3 so it can be more easily used for local.translate
         const scale = new f.Vector3(_scale.x, _scale.y, 0);
         const pos = new f.Vector3(_pos.x, _pos.y, 0);
-        cmpMesh.pivot.scale(scale);
         node.addComponent(cmpMesh);
         node.addComponent(cmpMaterial);
         node.addComponent(new f.ComponentTransform());
         node.cmpTransform.local.translate(pos);
+        node.cmpTransform.local.scale(scale);
         return node;
     }
 })(L05_Reflection || (L05_Reflection = {}));
