@@ -17,7 +17,7 @@ namespace L10_FudgeCamera {
       let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
       this.setDistance(20);
       cmpCamera.pivot.lookAt(f.Vector3.ZERO());
-      cmpCamera.backgroundColor = f.Color.WHITE;
+      cmpCamera.backgroundColor = f.Color.CSS("WHITE");
       // this.maxRotX = _maxRotx;
       this.rotatorX.addComponent(cmpCamera);
     }

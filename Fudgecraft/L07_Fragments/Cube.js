@@ -29,27 +29,27 @@ var L08_FudgeCraft_Movement;
             return new Map([
                 [
                     CUBE_TYPE.RED,
-                    new f.Material(CUBE_TYPE.RED, f.ShaderFlat, new f.CoatColored(f.Color.RED))
+                    new f.Material(CUBE_TYPE.RED, f.ShaderFlat, new f.CoatColored(f.Color.CSS("red")))
                 ],
                 [
                     CUBE_TYPE.GREEN,
-                    new f.Material(CUBE_TYPE.GREEN, f.ShaderFlat, new f.CoatColored(f.Color.GREEN))
+                    new f.Material(CUBE_TYPE.GREEN, f.ShaderFlat, new f.CoatColored(f.Color.CSS("GREEN")))
                 ],
                 [
                     CUBE_TYPE.BLUE,
-                    new f.Material(CUBE_TYPE.BLUE, f.ShaderFlat, new f.CoatColored(f.Color.BLUE))
+                    new f.Material(CUBE_TYPE.BLUE, f.ShaderFlat, new f.CoatColored(f.Color.CSS("BLUE")))
                 ],
                 [
                     CUBE_TYPE.MAGENTA,
-                    new f.Material(CUBE_TYPE.MAGENTA, f.ShaderFlat, new f.CoatColored(f.Color.MAGENTA))
+                    new f.Material(CUBE_TYPE.MAGENTA, f.ShaderFlat, new f.CoatColored(f.Color.CSS("MAGENTA")))
                 ],
                 [
                     CUBE_TYPE.YELLOW,
-                    new f.Material(CUBE_TYPE.YELLOW, f.ShaderFlat, new f.CoatColored(f.Color.YELLOW))
+                    new f.Material(CUBE_TYPE.YELLOW, f.ShaderFlat, new f.CoatColored(f.Color.CSS("YELLOW")))
                 ],
                 [
                     CUBE_TYPE.CYAN,
-                    new f.Material(CUBE_TYPE.CYAN, f.ShaderFlat, new f.CoatColored(f.Color.CYAN))
+                    new f.Material(CUBE_TYPE.CYAN, f.ShaderFlat, new f.CoatColored(f.Color.CSS("CYAN")))
                 ],
                 [
                     CUBE_TYPE.ORANGE,

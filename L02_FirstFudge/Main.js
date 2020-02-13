@@ -13,7 +13,7 @@ var L02_FirstFudge;
     function hndLoad(_event) {
         const canvas = document.querySelector("canvas");
         f.RenderManager.initialize();
-        let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.WHITE));
+        let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.CSS("WHITE")));
         let nodeRoot = new f.Node("Root");
         paddleLeft = createQuadComponent("PaddeLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleLeft);
@@ -34,8 +34,14 @@ var L02_FirstFudge;
     function hndlKeyDown(_event) {
         keysPressed.add(_event.code);
         let key = _event.code;
-        key === f.KEYBOARD_CODE.W ? paddleLeft.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.S && paddleLeft.cmpTransform.local.translateY(-1);
-        key === f.KEYBOARD_CODE.ARROW_UP ? paddleRight.cmpTransform.local.translateY(1) : key === f.KEYBOARD_CODE.ARROW_DOWN && paddleRight.cmpTransform.local.translateY(-1);
+        key === f.KEYBOARD_CODE.W
+            ? paddleLeft.cmpTransform.local.translateY(1)
+            : key === f.KEYBOARD_CODE.S &&
+                paddleLeft.cmpTransform.local.translateY(-1);
+        key === f.KEYBOARD_CODE.ARROW_UP
+            ? paddleRight.cmpTransform.local.translateY(1)
+            : key === f.KEYBOARD_CODE.ARROW_DOWN &&
+                paddleRight.cmpTransform.local.translateY(-1);
     }
     function hndlKeyUp(_event) {
         keysPressed.delete(_event.code);

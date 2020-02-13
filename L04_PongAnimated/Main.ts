@@ -39,7 +39,7 @@ namespace L04_PongAnimated {
     let material: f.Material = new f.Material(
       "SolidWhite",
       f.ShaderUniColor,
-      new f.CoatColored(f.Color.WHITE)
+      new f.CoatColored(f.Color.CSS("WHITE"))
     );
 
     paddleLeft = createQuadComponent(

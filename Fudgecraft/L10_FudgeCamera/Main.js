@@ -37,7 +37,7 @@ var L10_FudgeCamera;
         fragment.cmpTransform.local.rotate(new f.Vector3(90, 0, 0));
         game.appendChild(fragment);
         rotate = fragment.cmpTransform.local.rotation;
-        let cmpLight = new f.ComponentLight(new f.LightDirectional(f.Color.WHITE));
+        let cmpLight = new f.ComponentLight(new f.LightDirectional(f.Color.CSS("WHITE")));
         cmpLight.pivot.lookAt(new f.Vector3(0.5, 1, 0.8));
         game.addComponent(cmpLight);
         viewport = new f.Viewport();

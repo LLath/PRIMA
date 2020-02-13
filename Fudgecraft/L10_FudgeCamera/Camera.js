@@ -13,7 +13,7 @@ var L10_FudgeCamera;
             let cmpCamera = new f.ComponentCamera();
             this.setDistance(20);
             cmpCamera.pivot.lookAt(f.Vector3.ZERO());
-            cmpCamera.backgroundColor = f.Color.WHITE;
+            cmpCamera.backgroundColor = f.Color.CSS("WHITE");
             // this.maxRotX = _maxRotx;
             this.rotatorX.addComponent(cmpCamera);
         }
@@ -23,6 +23,7 @@ var L10_FudgeCamera;
         rotateX(_delta) {
             this.rotatorX.cmpTransform.local.rotateX(this.rotatorX.cmpTransform.local.rotation.x + _delta);
         }
+        // Vector statt rotation.x
         setRotationX(_angle) {
             if (_angle < this.maxRotX)
                 this.rotatorX.cmpTransform.local.rotation.x = _angle;

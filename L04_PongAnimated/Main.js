@@ -25,7 +25,7 @@ var L04_PongAnimated;
     function hndLoad(_event) {
         const canvas = document.querySelector("canvas");
         f.RenderManager.initialize();
-        let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.WHITE));
+        let material = new f.Material("SolidWhite", f.ShaderUniColor, new f.CoatColored(f.Color.CSS("WHITE")));
         paddleLeft = createQuadComponent("PaddleLeft", material, new f.MeshQuad(), new f.Vector2(-7, 0), new f.Vector2(0.05, 3));
         nodeRoot.appendChild(paddleLeft);
         paddleRight = createQuadComponent("PaddleRight", material, new f.MeshQuad(), new f.Vector2(7, 0), new f.Vector2(0.05, 3));
