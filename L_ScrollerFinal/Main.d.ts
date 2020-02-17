@@ -10,4 +10,5 @@ declare namespace L_ScrollerFinal {
     }
     let keybinding: Keybindings;
     let state: GAMESTATE;
+    function gameMenu(): void;
 }

@@ -40,7 +40,7 @@ var L15_ScrollerControl;
         }
     }
     function handleKeyboard(_event) {
-        keysPressed[_event.code] = (_event.type == "keydown");
+        keysPressed[_event.code] = _event.type == "keydown";
     }
     function processInput() {
         if (keysPressed[L15_ScrollerControl.ƒ.KEYBOARD_CODE.A]) {

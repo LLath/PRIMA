@@ -29,7 +29,9 @@ var L15_ScrollerControl;
             for (let sprite of Hare.sprites) {
                 let nodeSprite = new L15_ScrollerControl.NodeSprite(sprite.name, sprite);
                 nodeSprite.activate(false);
-                nodeSprite.addEventListener("showNext", (_event) => { _event.currentTarget.showFrameNext(); }, true);
+                nodeSprite.addEventListener("showNext", (_event) => {
+                    _event.currentTarget.showFrameNext();
+                }, true);
                 this.appendChild(nodeSprite);
             }
             this.show(ACTION.IDLE);
@@ -55,7 +57,7 @@ var L15_ScrollerControl;
                     this.speed = 0;
                     break;
                 case ACTION.WALK:
-                    let direction = (_direction == DIRECTION.RIGHT ? 1 : -1);
+                    let direction = _direction == DIRECTION.RIGHT ? 1 : -1;
                     this.speed = Hare.speedMax * direction;
                     this.cmpTransform.local.rotation = ƒ.Vector3.Y(90 - 90 * direction);
                     // console.log(direction);

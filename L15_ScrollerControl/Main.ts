@@ -14,7 +14,6 @@ namespace L15_ScrollerControl {
   let game: ƒ.Node;
   let hare: Hare;
 
-
   function test(): void {
     let canvas: HTMLCanvasElement = document.querySelector("canvas");
     let crc2: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -54,7 +53,7 @@ namespace L15_ScrollerControl {
   }
 
   function handleKeyboard(_event: KeyboardEvent): void {
-    keysPressed[_event.code] = (_event.type == "keydown");
+    keysPressed[_event.code] = _event.type == "keydown";
   }
 
   function processInput(): void {

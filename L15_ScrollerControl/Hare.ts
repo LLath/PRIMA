@@ -7,7 +7,8 @@ namespace L15_ScrollerControl {
     WALK = "Walk"
   }
   export enum DIRECTION {
-    LEFT, RIGHT
+    LEFT,
+    RIGHT
   }
 
   export class Hare extends ƒ.Node {
@@ -27,7 +28,9 @@ namespace L15_ScrollerControl {
 
         nodeSprite.addEventListener(
           "showNext",
-          (_event: Event) => { (<NodeSprite>_event.currentTarget).showFrameNext(); },
+          (_event: Event) => {
+            (<NodeSprite>_event.currentTarget).showFrameNext();
+          },
           true
         );
 
@@ -41,11 +44,25 @@ namespace L15_ScrollerControl {
     public static generateSprites(_txtImage: ƒ.TextureImage): void {
       Hare.sprites = [];
       let sprite: Sprite = new Sprite(ACTION.WALK);
-      sprite.generateByGrid(_txtImage, ƒ.Rectangle.GET(2, 104, 68, 64), 6, ƒ.Vector2.ZERO(), 64, ƒ.ORIGIN2D.BOTTOMCENTER);
+      sprite.generateByGrid(
+        _txtImage,
+        ƒ.Rectangle.GET(2, 104, 68, 64),
+        6,
+        ƒ.Vector2.ZERO(),
+        64,
+        ƒ.ORIGIN2D.BOTTOMCENTER
+      );
       Hare.sprites.push(sprite);
 
       sprite = new Sprite(ACTION.IDLE);
-      sprite.generateByGrid(_txtImage, ƒ.Rectangle.GET(8, 20, 45, 72), 4, ƒ.Vector2.ZERO(), 64, ƒ.ORIGIN2D.BOTTOMCENTER);
+      sprite.generateByGrid(
+        _txtImage,
+        ƒ.Rectangle.GET(8, 20, 45, 72),
+        4,
+        ƒ.Vector2.ZERO(),
+        64,
+        ƒ.ORIGIN2D.BOTTOMCENTER
+      );
       Hare.sprites.push(sprite);
     }
 
@@ -61,7 +78,7 @@ namespace L15_ScrollerControl {
           this.speed = 0;
           break;
         case ACTION.WALK:
-          let direction: number = (_direction == DIRECTION.RIGHT ? 1 : -1);
+          let direction: number = _direction == DIRECTION.RIGHT ? 1 : -1;
           this.speed = Hare.speedMax * direction;
           this.cmpTransform.local.rotation = ƒ.Vector3.Y(90 - 90 * direction);
           // console.log(direction);
@@ -74,6 +91,6 @@ namespace L15_ScrollerControl {
       let timeFrame: number = ƒ.Loop.timeFrameGame / 1000;
       this.cmpTransform.local.translateX(this.speed * timeFrame);
       this.broadcastEvent(new CustomEvent("showNext"));
-    }
+    };
   }
 }
