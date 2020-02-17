@@ -18,11 +18,11 @@ var L_ScrollerFinal;
         constructor(_name = "Hare") {
             super(_name);
             this.speed = ƒ.Vector3.ZERO();
-            this.lastFrameTime = 0;
             this.stats = {
                 speed: 3 + L_ScrollerFinal.statUpgrade.speed,
                 jump: 4.5 + L_ScrollerFinal.statUpgrade.jump
             };
+            this.lastFrameTime = 0;
             this.update = (_event) => {
                 let timeFrame = ƒ.Loop.timeFrameGame / 1000;
                 this.lastFrameTime += timeFrame;

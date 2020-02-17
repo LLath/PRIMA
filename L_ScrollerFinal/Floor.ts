@@ -3,19 +3,16 @@ namespace L_ScrollerFinal {
 
   export class Floor extends ƒ.Node {
     private static mesh: ƒ.MeshSprite = new ƒ.MeshSprite();
-    private static material: ƒ.Material = new ƒ.Material(
-      "Floor",
-      ƒ.ShaderUniColor,
-      new ƒ.CoatColored(ƒ.Color.CSS("red", 0.5))
-    );
     private static readonly pivot: ƒ.Matrix4x4 = ƒ.Matrix4x4.TRANSLATION(
       ƒ.Vector3.Y(0)
     );
 
-    public constructor(_name: string = "Floor") {
+    public constructor(_name: string = "Floor", _color?: string) {
       super(_name);
       this.addComponent(new ƒ.ComponentTransform());
-      this.addComponent(new ƒ.ComponentMaterial(Floor.material));
+      this.addComponent(
+        new ƒ.ComponentMaterial(this.createMaterial(_name, _color))
+      );
       let cmpMesh: ƒ.ComponentMesh = new ƒ.ComponentMesh(Floor.mesh);
       cmpMesh.pivot = Floor.pivot;
       this.addComponent(cmpMesh);
@@ -42,6 +39,14 @@ namespace L_ScrollerFinal {
       rect.size = size;
 
       return rect;
+    }
+    private createMaterial(_name: string, _color: string = "red"): ƒ.Material {
+      let material: ƒ.Material = new ƒ.Material(
+        _name,
+        ƒ.ShaderUniColor,
+        new ƒ.CoatColored(ƒ.Color.CSS(_color, 0.5))
+      );
+      return material;
     }
   }
 }

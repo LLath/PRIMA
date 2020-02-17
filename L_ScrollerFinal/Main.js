@@ -98,7 +98,6 @@ var L_ScrollerFinal;
             crc2.fillRect(0, 0, canvas.width / 2 - 130, canvas.height);
             keybindingButtons.forEach((button, index) => {
                 crc2.globalAlpha = 1;
-                crc2.beginPath();
                 crc2.fillStyle = "black";
                 crc2.textAlign = "center";
                 let horizontalMid = button.y + button.h / 2 + 2;
@@ -124,7 +123,6 @@ var L_ScrollerFinal;
         handleMenu(canvas, menuButtons);
         document.addEventListener("keydown", handleKeyboard);
         document.addEventListener("keyup", handleKeyboard);
-        crc2.beginPath();
         crc2.fillStyle = "rgba(255,255,255,0.8)";
         crc2.fillRect(0, 0, canvas.width, canvas.height);
         menuButtons.forEach((button, index) => {

@@ -14,8 +14,8 @@ declare namespace L_ScrollerFinal {
         private static sprites;
         private static gravity;
         speed: ƒ.Vector3;
+        stats: Stats;
         private lastFrameTime;
-        private stats;
         constructor(_name?: string);
         static generateSprites(_txtImage: ƒ.TextureImage): void;
         show(_action: ACTION): void;

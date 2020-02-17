@@ -16,12 +16,12 @@ namespace L_ScrollerFinal {
     private static sprites: Sprite[];
     private static gravity: ƒ.Vector2 = ƒ.Vector2.Y(-6);
     public speed: ƒ.Vector3 = ƒ.Vector3.ZERO();
-    private lastFrameTime: number = 0;
-
-    private stats: Stats = {
+    public stats: Stats = {
       speed: 3 + statUpgrade.speed,
       jump: 4.5 + statUpgrade.jump
     };
+    private lastFrameTime: number = 0;
+
     constructor(_name: string = "Hare") {
       super(_name);
       this.addComponent(new ƒ.ComponentTransform());

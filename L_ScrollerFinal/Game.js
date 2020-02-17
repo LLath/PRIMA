@@ -3,7 +3,6 @@ var L_ScrollerFinal;
 (function (L_ScrollerFinal) {
     L_ScrollerFinal.Sprite = L14_ScrollerFoundation.Sprite;
     L_ScrollerFinal.NodeSprite = L14_ScrollerFoundation.NodeSprite;
-    var clearLevel = Level.clear;
     let keysPressed = {};
     let hare;
     L_ScrollerFinal.statUpgrade = { speed: 0, jump: 0 };
@@ -58,7 +57,7 @@ var L_ScrollerFinal;
             function createForeGround(_start = lastforeGroundImageX) {
                 let randomY = Math.random() * (0 - 0.3) + 0;
                 let randomX = Math.random() * (5 - 1) + 1;
-                floor = new L_ScrollerFinal.Floor("ForegroundImage");
+                floor = new L_ScrollerFinal.Floor("ForegroundImage", "chocolate");
                 let translation = floor.cmpTransform.local;
                 translation.scaleY(1.5);
                 translation.scaleX(1);
@@ -86,6 +85,7 @@ var L_ScrollerFinal;
         function getGameChildren(_name) {
             return L_ScrollerFinal.game.getChildrenByName(_name)[0];
         }
+        let timeForNewBackground = 1;
         function update(_event) {
             processInput();
             if (hare.speed.x > 0) {
@@ -98,6 +98,22 @@ var L_ScrollerFinal;
                     .getChildren()[0]
                     .cmpTransform.local.translateX(-0.01);
             }
+            if (timeForNewBackground === 0) {
+                let sprite = new L_ScrollerFinal.Sprite("Sprite");
+                sprite.generateByGrid(txtBackground, L_ScrollerFinal.ƒ.Rectangle.GET(0, 0, 900, 600, L_ScrollerFinal.ƒ.ORIGIN2D.TOPLEFT), 1, L_ScrollerFinal.ƒ.Vector2.ZERO(), 24, L_ScrollerFinal.ƒ.ORIGIN2D.CENTER);
+                let nodeSprite = new L_ScrollerFinal.NodeSprite("BackgroundImage", sprite);
+                nodeSprite.addComponent(new L_ScrollerFinal.ƒ.ComponentTransform());
+                nodeSprite.cmpTransform.local.translate(new L_ScrollerFinal.ƒ.Vector3(camera.levelBeginning.x, camera.levelBeginning.y, -15));
+                nodeSprite.cmpTransform.local.scaleX(1.2);
+                getGameChildren("Background").appendChild(nodeSprite);
+                timeForNewBackground++;
+            }
+            if (getGameChildren("Background").getChildren()[0].cmpTransform.local
+                .translation.x < 3) {
+                timeForNewBackground = 0;
+            }
+            console.log(getGameChildren("Background").getChildren()[0].cmpTransform.local
+                .translation.x);
             getGameChildren("Foreground")
                 .getChildrenByName("ForegroundImage")
                 .forEach(child => {
@@ -111,9 +127,11 @@ var L_ScrollerFinal;
                     v.translateX(camera.levelEnd.x);
                 }
             });
-            if (hare.cmpTransform.local.translation.x < -1 ||
-                hare.cmpTransform.local.translation.y < -1) {
+            if (hare.cmpTransform.local.translation.y < -1) {
                 L_ScrollerFinal.state = L_ScrollerFinal.GAMESTATE.OPTIONS;
+            }
+            if (hare.cmpTransform.local.translation.x < -0.5) {
+                hare.cmpTransform.local.translateX(0.1);
             }
             viewport.draw();
             camera.translateBasedOn(hare);
@@ -130,11 +148,17 @@ var L_ScrollerFinal;
                     let gameArray = [];
                     childrenTranslation.forEach(child => gameArray.push({ x: child.x, y: child.y, z: 0 }));
                     gameArray.push({
-                        x: childTranslationHare[0].x,
-                        y: childTranslationHare[0].y,
-                        z: 0
+                        harePos: {
+                            x: childTranslationHare[0].x,
+                            y: childTranslationHare[0].y,
+                            z: 0
+                        }
+                    });
+                    gameArray.push({
+                        stats: { speed: hare.stats.speed, jump: hare.stats.jump }
                     });
                     L_ScrollerFinal.savedData = L_ScrollerFinal.game;
+                    //  TODO: IF Server change to
                     localStorage.setItem("SaveState", JSON.stringify(gameArray));
                     L_ScrollerFinal.ƒ.Loop.stop();
                     L_ScrollerFinal.ƒ.Loop.removeEventListener("loopFrame" /* LOOP_FRAME */, update);
@@ -190,60 +214,35 @@ var L_ScrollerFinal;
     }
     function createLevel() {
         let level = new L_ScrollerFinal.ƒ.Node("Level");
-        let floor = new L_ScrollerFinal.Floor();
         let floorHeight = 0.2;
-        const level1 = [
-            {
-                scaleY: floorHeight,
-                scaleX: 10,
-                translateX: 0,
-                translateY: 0
-            },
-            {
-                scaleY: floorHeight,
-                scaleX: 5,
-                translateX: 12,
-                translateY: 0,
-                powerUP: {
-                    name: "speed"
+        let jumpColor = "lightcoral";
+        let speedColor = "lightgreen";
+        let level1 = [];
+        // https://krc-api.herokuapp.com/api/
+        fetch("Level/level.json")
+            .then(res => res.json())
+            .then(data => {
+            data.map((platform) => {
+                let _color;
+                let floor = new L_ScrollerFinal.Floor();
+                if (platform.color) {
+                    _color = platform.color;
                 }
-            },
-            {
-                scaleY: floorHeight,
-                scaleX: 2,
-                translateX: 3,
-                translateY: 1.5
-            },
-            {
-                scaleY: floorHeight,
-                scaleX: 2,
-                translateX: 1,
-                translateY: 3,
-                powerUP: {
-                    name: "jump"
-                }
-            },
-            {
-                scaleY: floorHeight,
-                scaleX: 2,
-                translateX: 1,
-                translateY: 6
-            }
-        ];
-        level1.map(platform => {
-            floor = new L_ScrollerFinal.Floor();
-            transformFloor(floor, platform);
-            level.appendChild(floor);
-            if (platform.powerUP) {
-                floor = new L_ScrollerFinal.Floor(platform.powerUP.name);
-                floor.cmpTransform.local.scaleY(0.2);
-                floor.cmpTransform.local.scaleX(0.2);
-                floor.cmpTransform.local.translateY(platform.translateY + 0.6);
-                floor.cmpTransform.local.translateX(platform.translateX);
+                floor = new L_ScrollerFinal.Floor("Floor", _color);
+                transformFloor(floor, platform);
                 level.appendChild(floor);
-            }
+                if (platform.powerUP) {
+                    console.log("PLATFORM:", platform);
+                    floor = new L_ScrollerFinal.Floor(platform.powerUP.name, platform.powerUP.color);
+                    floor.cmpTransform.local.scaleY(0.2);
+                    floor.cmpTransform.local.scaleX(0.2);
+                    floor.cmpTransform.local.translateY(platform.translateY + 1.3);
+                    floor.cmpTransform.local.translateX(platform.translateX);
+                    console.log("POWERUPFLOOR:", floor);
+                    level.appendChild(floor);
+                }
+            });
         });
-        level.appendChild(floor);
         // getLevel().map(floors => {
         //   floor = new Floor();
         //   floor.cmpTransform.local.scaleY(floorHeight);
@@ -252,7 +251,7 @@ var L_ScrollerFinal;
         //   floor.cmpTransform.local.translateX(Object(floors).translateX);
         //   level.appendChild(floor);
         // });
-        clearLevel();
+        // clearLevel();
         function transformFloor(_floor, _platform) {
             _floor.cmpTransform.local.scaleY(floorHeight);
             _floor.cmpTransform.local.scaleX(_platform.scaleX);

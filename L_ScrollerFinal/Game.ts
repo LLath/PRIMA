@@ -90,7 +90,7 @@ namespace L_ScrollerFinal {
       function createForeGround(_start: number = lastforeGroundImageX): void {
         let randomY: number = Math.random() * (0 - 0.3) + 0;
         let randomX: number = Math.random() * (5 - 1) + 1;
-        floor = new Floor("ForegroundImage");
+        floor = new Floor("ForegroundImage", "chocolate");
         let translation: ƒ.Matrix4x4 = floor.cmpTransform.local;
         translation.scaleY(1.5);
         translation.scaleX(1);
@@ -124,6 +124,8 @@ namespace L_ScrollerFinal {
     function getGameChildren(_name: string): ƒ.Node {
       return game.getChildrenByName(_name)[0];
     }
+
+    let timeForNewBackground: number = 1;
     function update(_event: ƒ.Eventƒ): void {
       processInput();
 
@@ -137,6 +139,40 @@ namespace L_ScrollerFinal {
           .getChildren()[0]
           .cmpTransform.local.translateX(-0.01);
       }
+
+      if (timeForNewBackground === 0) {
+        let sprite: Sprite = new Sprite("Sprite");
+        sprite.generateByGrid(
+          txtBackground,
+          ƒ.Rectangle.GET(0, 0, 900, 600, ƒ.ORIGIN2D.TOPLEFT),
+          1,
+          ƒ.Vector2.ZERO(),
+          24,
+          ƒ.ORIGIN2D.CENTER
+        );
+        let nodeSprite: NodeSprite = new NodeSprite("BackgroundImage", sprite);
+        nodeSprite.addComponent(new ƒ.ComponentTransform());
+        nodeSprite.cmpTransform.local.translate(
+          new ƒ.Vector3(camera.levelBeginning.x, camera.levelBeginning.y, -15)
+        );
+        nodeSprite.cmpTransform.local.scaleX(1.2);
+
+        getGameChildren("Background").appendChild(nodeSprite);
+        timeForNewBackground++;
+      }
+
+      if (
+        getGameChildren("Background").getChildren()[0].cmpTransform.local
+          .translation.x < 3
+      ) {
+        timeForNewBackground = 0;
+      }
+
+      console.log(
+        getGameChildren("Background").getChildren()[0].cmpTransform.local
+          .translation.x
+      );
+
       getGameChildren("Foreground")
         .getChildrenByName("ForegroundImage")
         .forEach(child => {
@@ -151,11 +187,11 @@ namespace L_ScrollerFinal {
           }
         });
 
-      if (
-        hare.cmpTransform.local.translation.x < -1 ||
-        hare.cmpTransform.local.translation.y < -1
-      ) {
+      if (hare.cmpTransform.local.translation.y < -1) {
         state = GAMESTATE.OPTIONS;
+      }
+      if (hare.cmpTransform.local.translation.x < -0.5) {
+        hare.cmpTransform.local.translateX(0.1);
       }
 
       viewport.draw();
@@ -181,11 +217,18 @@ namespace L_ScrollerFinal {
             gameArray.push({ x: child.x, y: child.y, z: 0 })
           );
           gameArray.push({
-            x: childTranslationHare[0].x,
-            y: childTranslationHare[0].y,
-            z: 0
+            harePos: {
+              x: childTranslationHare[0].x,
+              y: childTranslationHare[0].y,
+              z: 0
+            }
+          });
+          gameArray.push({
+            stats: { speed: hare.stats.speed, jump: hare.stats.jump }
           });
           savedData = game;
+
+          //  TODO: IF Server change to
           localStorage.setItem("SaveState", JSON.stringify(gameArray));
           ƒ.Loop.stop();
           ƒ.Loop.removeEventListener(ƒ.EVENT.LOOP_FRAME, update);
@@ -245,6 +288,7 @@ namespace L_ScrollerFinal {
   function createLevel(): ƒ.Node {
     interface PowerUp {
       name: string;
+      color?: string;
     }
     interface Platform {
       scaleY: number;
@@ -252,6 +296,7 @@ namespace L_ScrollerFinal {
       translateY: number;
       translateX: number;
       powerUP?: PowerUp;
+      color?: string;
     }
 
     interface Level extends Array<Platform> {
@@ -259,64 +304,39 @@ namespace L_ScrollerFinal {
     }
 
     let level: ƒ.Node = new ƒ.Node("Level");
-    let floor: Floor = new Floor();
     let floorHeight: number = 0.2;
 
-    const level1: Level = [
-      {
-        scaleY: floorHeight,
-        scaleX: 10,
-        translateX: 0,
-        translateY: 0
-      },
-      {
-        scaleY: floorHeight,
-        scaleX: 5,
-        translateX: 12,
-        translateY: 0,
-        powerUP: {
-          name: "speed"
-        }
-      },
-      {
-        scaleY: floorHeight,
-        scaleX: 2,
-        translateX: 3,
-        translateY: 1.5
-      },
-      {
-        scaleY: floorHeight,
-        scaleX: 2,
-        translateX: 1,
-        translateY: 3,
-        powerUP: {
-          name: "jump"
-        }
-      },
-      {
-        scaleY: floorHeight,
-        scaleX: 2,
-        translateX: 1,
-        translateY: 6
-      }
-    ];
+    let jumpColor: string = "lightcoral";
+    let speedColor: string = "lightgreen";
 
-    level1.map(platform => {
-      floor = new Floor();
-      transformFloor(floor, platform);
-      level.appendChild(floor);
+    let level1: Level = [];
 
-      if (platform.powerUP) {
-        floor = new Floor(platform.powerUP.name);
-        floor.cmpTransform.local.scaleY(0.2);
-        floor.cmpTransform.local.scaleX(0.2);
-        floor.cmpTransform.local.translateY(platform.translateY + 0.6);
-        floor.cmpTransform.local.translateX(platform.translateX);
-        level.appendChild(floor);
-      }
-    });
+    // https://krc-api.herokuapp.com/api/
+    fetch("Level/level.json")
+      .then(res => res.json())
+      .then(data => {
+        data.map((platform: Platform) => {
+          let _color: string;
+          let floor: Floor = new Floor();
+          if (platform.color) {
+            _color = platform.color;
+          }
+          floor = new Floor("Floor", _color);
+          transformFloor(floor, platform);
+          level.appendChild(floor);
 
-    level.appendChild(floor);
+          if (platform.powerUP) {
+            console.log("PLATFORM:", platform);
+            floor = new Floor(platform.powerUP.name, platform.powerUP.color);
+            floor.cmpTransform.local.scaleY(0.2);
+            floor.cmpTransform.local.scaleX(0.2);
+            floor.cmpTransform.local.translateY(platform.translateY + 1.3);
+            floor.cmpTransform.local.translateX(platform.translateX);
+            console.log("POWERUPFLOOR:", floor);
+            level.appendChild(floor);
+          }
+        });
+      });
 
     // getLevel().map(floors => {
     //   floor = new Floor();
@@ -327,7 +347,7 @@ namespace L_ScrollerFinal {
     //   level.appendChild(floor);
     // });
 
-    clearLevel();
+    // clearLevel();
 
     function transformFloor(_floor: Floor, _platform: Platform): void {
       _floor.cmpTransform.local.scaleY(floorHeight);
