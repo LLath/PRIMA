@@ -33,6 +33,10 @@ namespace L_ScrollerFinal {
     );
   }
 
+  function makeKeyCodeReadable(_keyCode: ƒ.KEYBOARD_CODE): string {
+    return _keyCode.replace(/[kK]ey/, "");
+  }
+
   let drawKeybinds: number = 0;
 
   // TODO: START statt INGAME
@@ -100,10 +104,6 @@ namespace L_ScrollerFinal {
       }
     ];
 
-    function makeKeyCodeReadable(_keyCode: ƒ.KEYBOARD_CODE): string {
-      return _keyCode.replace(/[kK]ey/, "");
-    }
-
     function drawKeybindMenu(): void {
       crc2.beginPath();
       crc2.fillStyle = "rgba(255,255,255,0.8)";
@@ -149,6 +149,7 @@ namespace L_ScrollerFinal {
       });
     }
 
+    // Add click event listener for menuButtons
     handleMenu(canvas, menuButtons);
     document.addEventListener("keydown", handleKeyboard);
     document.addEventListener("keyup", handleKeyboard);
@@ -156,7 +157,7 @@ namespace L_ScrollerFinal {
     crc2.fillStyle = "rgba(255,255,255,0.8)";
     crc2.fillRect(0, 0, canvas.width, canvas.height);
 
-    menuButtons.forEach((button, index) => {
+    menuButtons.forEach(button => {
       crc2.globalAlpha = 1;
       crc2.beginPath();
       crc2.fillStyle = "black";
@@ -164,45 +165,36 @@ namespace L_ScrollerFinal {
       crc2.textAlign = "center";
       let horizontalMid: number = button.y + button.h / 2 + 2;
       let verticalMid: number = button.x + button.w / 2;
-      if (state === GAMESTATE.START) {
-        switch (index) {
-          case 0:
-            crc2.fillText("Keybindings", verticalMid, horizontalMid, 140);
-            crc2.strokeRect(button.x, button.y, button.w, button.h);
-            break;
-          case 1:
-            crc2.fillText("Start", verticalMid, horizontalMid, 140);
-            crc2.strokeRect(button.x, button.y, button.w, button.h);
-            break;
-          case 2:
-            crc2.fillText("Close", verticalMid, horizontalMid, 140);
-            crc2.strokeRect(button.x, button.y, button.w, button.h);
-            break;
-          default:
-            break;
-        }
-      }
-      if (state === GAMESTATE.OPTIONS) {
-        switch (index) {
-          case 0:
-            crc2.fillText("Keybindings", verticalMid, horizontalMid, 140);
-            crc2.strokeRect(button.x, button.y, button.w, button.h);
-            break;
-          case 1:
-            crc2.fillText("Resume", verticalMid, horizontalMid, 140);
-            crc2.strokeRect(button.x, button.y, button.w, button.h);
-            break;
-          case 2:
-            crc2.fillText("Back", verticalMid, horizontalMid, 140);
-            crc2.strokeRect(button.x, button.y, button.w, button.h);
-            break;
-          case 3:
+
+      switch (button.name) {
+        case "Keybindings":
+          crc2.fillText(button.name, verticalMid, horizontalMid, 140);
+          crc2.strokeRect(button.x, button.y, button.w, button.h);
+          break;
+        case "Ingame":
+          let _nameIngame: string = "Start";
+          if (state === GAMESTATE.OPTIONS) {
+            _nameIngame = "Resume";
+          }
+          crc2.fillText(_nameIngame, verticalMid, horizontalMid, 140);
+          crc2.strokeRect(button.x, button.y, button.w, button.h);
+          break;
+        case "Close":
+          let _nameClose: string = "Close";
+          if (state === GAMESTATE.OPTIONS) {
+            _nameClose = "Back";
+          }
+          crc2.fillText(_nameClose, verticalMid, horizontalMid, 140);
+          crc2.strokeRect(button.x, button.y, button.w, button.h);
+          break;
+        case "Restart":
+          if (state === GAMESTATE.OPTIONS) {
             crc2.fillText("Restart", verticalMid, horizontalMid, 140);
             crc2.strokeRect(button.x, button.y, button.w, button.h);
-            break;
-          default:
-            break;
-        }
+          }
+          break;
+        default:
+          break;
       }
     });
 
@@ -228,8 +220,13 @@ namespace L_ScrollerFinal {
           crc2.clearRect(0, 0, canvas.width, canvas.height);
           ƒ.Loop.stop();
           ƒ.Loop.removeEventListener(ƒ.EVENT.LOOP_FRAME, update);
-          game.removeChild(level);
+          try {
+            game.removeChild(level);
+          } catch (error) {
+            console.error("No Level to delete");
+          }
           localStorage.removeItem("SaveState");
+          localStorage.removeItem("Level");
           state = GAMESTATE.START;
           console.log("Close");
           gameMenu();

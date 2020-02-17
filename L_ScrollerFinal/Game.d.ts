@@ -3,6 +3,7 @@ declare namespace L_ScrollerFinal {
     export import NodeSprite = L14_ScrollerFoundation.NodeSprite;
     let game: ƒ.Node;
     let level: ƒ.Node;
+    let hare: Hare;
     let savedData: ƒ.Node;
     let statUpgrade: Stats;
     function gameLoop(): void;

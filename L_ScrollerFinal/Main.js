@@ -24,6 +24,9 @@ var L_ScrollerFinal;
             _point.y < _button.y + _button.h &&
             _point.y > _button.y);
     }
+    function makeKeyCodeReadable(_keyCode) {
+        return _keyCode.replace(/[kK]ey/, "");
+    }
     let drawKeybinds = 0;
     // TODO: START statt INGAME
     L_ScrollerFinal.state = GAMESTATE.START;
@@ -86,9 +89,6 @@ var L_ScrollerFinal;
                 h: 50
             }
         ];
-        function makeKeyCodeReadable(_keyCode) {
-            return _keyCode.replace(/[kK]ey/, "");
-        }
         function drawKeybindMenu() {
             crc2.beginPath();
             crc2.fillStyle = "rgba(255,255,255,0.8)";
@@ -117,57 +117,48 @@ var L_ScrollerFinal;
                 }
             });
         }
+        // Add click event listener for menuButtons
         handleMenu(canvas, menuButtons);
         document.addEventListener("keydown", handleKeyboard);
         document.addEventListener("keyup", handleKeyboard);
         crc2.fillStyle = "rgba(255,255,255,0.8)";
         crc2.fillRect(0, 0, canvas.width, canvas.height);
-        menuButtons.forEach((button, index) => {
+        menuButtons.forEach(button => {
             crc2.globalAlpha = 1;
             crc2.beginPath();
             crc2.fillStyle = "black";
             crc2.textAlign = "center";
             let horizontalMid = button.y + button.h / 2 + 2;
             let verticalMid = button.x + button.w / 2;
-            if (L_ScrollerFinal.state === GAMESTATE.START) {
-                switch (index) {
-                    case 0:
-                        crc2.fillText("Keybindings", verticalMid, horizontalMid, 140);
-                        crc2.strokeRect(button.x, button.y, button.w, button.h);
-                        break;
-                    case 1:
-                        crc2.fillText("Start", verticalMid, horizontalMid, 140);
-                        crc2.strokeRect(button.x, button.y, button.w, button.h);
-                        break;
-                    case 2:
-                        crc2.fillText("Close", verticalMid, horizontalMid, 140);
-                        crc2.strokeRect(button.x, button.y, button.w, button.h);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if (L_ScrollerFinal.state === GAMESTATE.OPTIONS) {
-                switch (index) {
-                    case 0:
-                        crc2.fillText("Keybindings", verticalMid, horizontalMid, 140);
-                        crc2.strokeRect(button.x, button.y, button.w, button.h);
-                        break;
-                    case 1:
-                        crc2.fillText("Resume", verticalMid, horizontalMid, 140);
-                        crc2.strokeRect(button.x, button.y, button.w, button.h);
-                        break;
-                    case 2:
-                        crc2.fillText("Back", verticalMid, horizontalMid, 140);
-                        crc2.strokeRect(button.x, button.y, button.w, button.h);
-                        break;
-                    case 3:
+            switch (button.name) {
+                case "Keybindings":
+                    crc2.fillText(button.name, verticalMid, horizontalMid, 140);
+                    crc2.strokeRect(button.x, button.y, button.w, button.h);
+                    break;
+                case "Ingame":
+                    let _nameIngame = "Start";
+                    if (L_ScrollerFinal.state === GAMESTATE.OPTIONS) {
+                        _nameIngame = "Resume";
+                    }
+                    crc2.fillText(_nameIngame, verticalMid, horizontalMid, 140);
+                    crc2.strokeRect(button.x, button.y, button.w, button.h);
+                    break;
+                case "Close":
+                    let _nameClose = "Close";
+                    if (L_ScrollerFinal.state === GAMESTATE.OPTIONS) {
+                        _nameClose = "Back";
+                    }
+                    crc2.fillText(_nameClose, verticalMid, horizontalMid, 140);
+                    crc2.strokeRect(button.x, button.y, button.w, button.h);
+                    break;
+                case "Restart":
+                    if (L_ScrollerFinal.state === GAMESTATE.OPTIONS) {
                         crc2.fillText("Restart", verticalMid, horizontalMid, 140);
                         crc2.strokeRect(button.x, button.y, button.w, button.h);
-                        break;
-                    default:
-                        break;
-                }
+                    }
+                    break;
+                default:
+                    break;
             }
         });
         L_ScrollerFinal.ƒ.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
@@ -191,8 +182,14 @@ var L_ScrollerFinal;
                     crc2.clearRect(0, 0, canvas.width, canvas.height);
                     L_ScrollerFinal.ƒ.Loop.stop();
                     L_ScrollerFinal.ƒ.Loop.removeEventListener("loopFrame" /* LOOP_FRAME */, update);
-                    L_ScrollerFinal.game.removeChild(L_ScrollerFinal.level);
+                    try {
+                        L_ScrollerFinal.game.removeChild(L_ScrollerFinal.level);
+                    }
+                    catch (error) {
+                        console.error("No Level to delete");
+                    }
                     localStorage.removeItem("SaveState");
+                    localStorage.removeItem("Level");
                     L_ScrollerFinal.state = GAMESTATE.START;
                     console.log("Close");
                     gameMenu();

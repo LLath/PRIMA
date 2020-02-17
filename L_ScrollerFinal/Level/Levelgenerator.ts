@@ -1,3 +1,5 @@
+// First try to generate a random Level
+// FIXME: If time
 namespace Level {
   const scaleY: number = 0.2;
   let scaleX: number = 2;
@@ -46,16 +48,5 @@ namespace Level {
   export function clear(): void {
     translateY = Math.random() * (2 - 1) - 1;
     translateX = Math.random() * (3 - 2) - 2;
-  }
-
-  function createLevel(_number: number): Array<Platform> {
-    let platform: Platform = {
-      scaleY,
-      scaleX,
-      translateY,
-      translateX
-    };
-
-    return [platform];
   }
 }

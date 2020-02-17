@@ -1,5 +1,9 @@
 "use strict";
+// First try to generate a random Level
+// FIXME: If time
 var Level;
+// First try to generate a random Level
+// FIXME: If time
 (function (Level) {
     const scaleY = 0.2;
     let scaleX = 2;
@@ -39,14 +43,5 @@ var Level;
         translateX = Math.random() * (3 - 2) - 2;
     }
     Level.clear = clear;
-    function createLevel(_number) {
-        let platform = {
-            scaleY,
-            scaleX,
-            translateY,
-            translateX
-        };
-        return [platform];
-    }
 })(Level || (Level = {}));
 //# sourceMappingURL=Levelgenerator.js.map

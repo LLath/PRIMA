@@ -2,14 +2,12 @@ namespace L_ScrollerFinal {
   export import Sprite = L14_ScrollerFoundation.Sprite;
   export import NodeSprite = L14_ScrollerFoundation.NodeSprite;
 
-  import getLevel = Level.generateLevel;
-  import clearLevel = Level.clear;
   export let game: ƒ.Node;
   export let level: ƒ.Node;
 
   let keysPressed: KeyPressed = {};
 
-  let hare: Hare;
+  export let hare: Hare;
   const midGround: ƒ.Node = new ƒ.Node("Midground");
   export let savedData: ƒ.Node;
 
@@ -44,7 +42,7 @@ namespace L_ScrollerFinal {
         state === GAMESTATE.INGAME &&
         game.getChildrenByName("Level").length < 1
       ) {
-        level = createLevel();
+        level = createLevel(midGround);
         savedData.appendChild(level);
       }
       game = savedData;
@@ -57,16 +55,13 @@ namespace L_ScrollerFinal {
 
       ƒ.RenderManager.initialize(true, false);
       game = new ƒ.Node("Game");
-      // hare = new Hare("Hare");
-      level = createLevel();
+      level = createLevel(midGround);
 
       game.appendChild(level);
       game.appendChild(midGround);
 
-      // midGround.appendChild(hare);
-
-      let sprite: Sprite = new Sprite("Sprite");
-      sprite.generateByGrid(
+      let backgroundSprite: Sprite = new Sprite("Sprite");
+      backgroundSprite.generateByGrid(
         txtBackground,
         ƒ.Rectangle.GET(0, 0, 900, 600, ƒ.ORIGIN2D.TOPLEFT),
         1,
@@ -74,7 +69,10 @@ namespace L_ScrollerFinal {
         24,
         ƒ.ORIGIN2D.CENTER
       );
-      let nodeSprite: NodeSprite = new NodeSprite("BackgroundImage", sprite);
+      let nodeSprite: NodeSprite = new NodeSprite(
+        "BackgroundImage",
+        backgroundSprite
+      );
       nodeSprite.addComponent(new ƒ.ComponentTransform());
       nodeSprite.cmpTransform.local.translate(
         new ƒ.Vector3(camera.levelBeginning.x, camera.levelBeginning.y, -15)
@@ -149,93 +147,97 @@ namespace L_ScrollerFinal {
           hare.cmpTransform.local.translateX(0.1);
         }
         camera.translateBasedOn(hare);
-      }
 
-      if (timeForNewBackground === 0) {
-        let sprite: Sprite = new Sprite("Sprite");
-        sprite.generateByGrid(
-          txtBackground,
-          ƒ.Rectangle.GET(0, 0, 900, 600, ƒ.ORIGIN2D.TOPLEFT),
-          1,
-          ƒ.Vector2.ZERO(),
-          24,
-          ƒ.ORIGIN2D.CENTER
-        );
-        let nodeSprite: NodeSprite = new NodeSprite("BackgroundImage", sprite);
-        nodeSprite.addComponent(new ƒ.ComponentTransform());
-        nodeSprite.cmpTransform.local.translate(
-          new ƒ.Vector3(camera.levelEnd.x, camera.levelBeginning.y, -15)
-        );
-        nodeSprite.cmpTransform.local.scaleX(1.2);
-
-        getGameChildren("Background").appendChild(nodeSprite);
-        timeForNewBackground++;
-      }
-
-      getGameChildren("Foreground")
-        .getChildrenByName("ForegroundImage")
-        .forEach(child => {
-          child.cmpTransform.local.translateX(-0.001);
-        });
-      getGameChildren("Foreground")
-        .getChildren()
-        .map(v => v.cmpTransform.local)
-        .forEach(v => {
-          if (v.translation.x <= 0) {
-            v.translateX(camera.levelEnd.x);
-          }
-        });
-
-      viewport.draw();
-
-      switch (state) {
-        case GAMESTATE.OPTIONS:
-          let children: Array<ƒ.Node> = game
-            .getChildrenByName("Level")[0]
-            .getChildren();
-          let childrenHare: Array<ƒ.Node> = game
-            .getChildrenByName("Midground")[0]
-            .getChildrenByName("Hare");
-          let childrenTranslation: Array<ƒ.Vector3> = children.map(
-            v => v.cmpTransform.local.translation
+        if (timeForNewBackground === 0) {
+          let sprite: Sprite = new Sprite("Sprite");
+          txtBackground.image = img;
+          sprite.generateByGrid(
+            txtBackground,
+            ƒ.Rectangle.GET(0, 0, 900, 600, ƒ.ORIGIN2D.TOPLEFT),
+            1,
+            ƒ.Vector2.ZERO(),
+            24,
+            ƒ.ORIGIN2D.CENTER
           );
-          let childTranslationHare: Array<ƒ.Vector3> = childrenHare.map(
-            v => v.cmpTransform.local.translation
+          let nodeSprite: NodeSprite = new NodeSprite(
+            "BackgroundImage",
+            sprite
           );
-          let gameArray: Array<ObjectLiteral> = [];
+          nodeSprite.addComponent(new ƒ.ComponentTransform());
+          nodeSprite.cmpTransform.local.translate(
+            new ƒ.Vector3(camera.levelEnd.x, camera.levelBeginning.y, -15)
+          );
+          nodeSprite.cmpTransform.local.scaleX(1.2);
 
-          childrenTranslation.forEach(child =>
-            gameArray.push({ x: child.x, y: child.y, z: 0 })
-          );
-          gameArray.push({
-            harePos: {
-              x: childTranslationHare[0].x,
-              y: childTranslationHare[0].y,
-              z: 0
+          getGameChildren("Background").appendChild(nodeSprite);
+          timeForNewBackground++;
+        }
+
+        getGameChildren("Foreground")
+          .getChildrenByName("ForegroundImage")
+          .forEach(child => {
+            child.cmpTransform.local.translateX(-0.001);
+          });
+        getGameChildren("Foreground")
+          .getChildren()
+          .map(v => v.cmpTransform.local)
+          .forEach(v => {
+            if (v.translation.x <= 0) {
+              v.translateX(camera.levelEnd.x);
             }
           });
-          gameArray.push({
-            stats: { speed: hare.stats.speed, jump: hare.stats.jump }
-          });
-          savedData = game;
 
-          //  TODO: IF Server change to
-          localStorage.setItem("SaveState", JSON.stringify(gameArray));
-          ƒ.Loop.stop();
-          ƒ.Loop.removeEventListener(ƒ.EVENT.LOOP_FRAME, update);
-          gameMenu();
-          console.log("Options");
-          break;
-        case GAMESTATE.CLOSE:
-          // TODO: If Time make Endscreen
-          console.log("Endscreen");
-          break;
-        case GAMESTATE.RESTART:
-          state = GAMESTATE.INGAME;
-          break;
+        viewport.draw();
 
-        default:
-          break;
+        switch (state) {
+          case GAMESTATE.OPTIONS:
+            let children: Array<ƒ.Node> = game
+              .getChildrenByName("Level")[0]
+              .getChildren();
+            let childrenHare: Array<ƒ.Node> = game
+              .getChildrenByName("Midground")[0]
+              .getChildrenByName("Hare");
+            let childrenTranslation: Array<ƒ.Vector3> = children.map(
+              v => v.cmpTransform.local.translation
+            );
+            let childTranslationHare: Array<ƒ.Vector3> = childrenHare.map(
+              v => v.cmpTransform.local.translation
+            );
+            let gameArray: Array<ObjectLiteral> = [];
+
+            childrenTranslation.forEach(child =>
+              gameArray.push({ x: child.x, y: child.y, z: 0 })
+            );
+            gameArray.push({
+              harePos: {
+                x: childTranslationHare[0].x,
+                y: childTranslationHare[0].y,
+                z: 0
+              }
+            });
+            gameArray.push({
+              stats: { speed: hare.stats.speed, jump: hare.stats.jump }
+            });
+            savedData = game;
+
+            //  TODO: IF Server change to
+            localStorage.setItem("SaveState", JSON.stringify(gameArray));
+            ƒ.Loop.stop();
+            ƒ.Loop.removeEventListener(ƒ.EVENT.LOOP_FRAME, update);
+            gameMenu();
+            console.log("Options");
+            break;
+          case GAMESTATE.CLOSE:
+            // TODO: If Time make Endscreen
+            console.log("Endscreen");
+            break;
+          case GAMESTATE.RESTART:
+            state = GAMESTATE.INGAME;
+            break;
+
+          default:
+            break;
+        }
       }
     }
   }
@@ -274,75 +276,5 @@ namespace L_ScrollerFinal {
       default:
         break;
     }
-  }
-
-  function createLevel(): ƒ.Node {
-    interface PowerUp {
-      name: string;
-      color?: string;
-    }
-    interface Platform {
-      scaleY: number;
-      scaleX: number;
-      translateY: number;
-      translateX: number;
-      powerUP?: PowerUp;
-      color?: string;
-    }
-
-    let level: ƒ.Node = new ƒ.Node("Level");
-    let floorHeight: number = 0.2;
-
-    fetch("https://prima-no-sprites.herokuapp.com/level")
-      .then((res: Response) => res.json())
-      .then((data: Array<Platform>) => {
-        localStorage.setItem("Level", JSON.stringify(data));
-        createObjects(data);
-      })
-      .then(() => {
-        hare = new Hare("Hare");
-        midGround.appendChild(hare);
-      });
-
-    // getLevel().map(floors => {
-    //   floor = new Floor();
-    //   floor.cmpTransform.local.scaleY(floorHeight);
-    //   floor.cmpTransform.local.scaleX(Object(floors).scaleX);
-    //   floor.cmpTransform.local.translateY(Object(floors).translateY);
-    //   floor.cmpTransform.local.translateX(Object(floors).translateX);
-    //   level.appendChild(floor);
-    // });
-
-    // clearLevel();
-
-    function transformFloor(_floor: Floor, _platform: Platform): void {
-      _floor.cmpTransform.local.scaleY(floorHeight);
-      _floor.cmpTransform.local.scaleX(_platform.scaleX);
-      _floor.cmpTransform.local.translateY(_platform.translateY);
-      _floor.cmpTransform.local.translateX(_platform.translateX);
-    }
-
-    function createObjects(_data: Array<Platform>): void {
-      _data.map((platform: Platform) => {
-        let _color: string;
-        let floor: Floor = new Floor();
-        if (platform.color) {
-          _color = platform.color;
-        }
-        floor = new Floor("Floor", _color);
-        transformFloor(floor, platform);
-        level.appendChild(floor);
-
-        if (platform.powerUP) {
-          floor = new Floor(platform.powerUP.name, platform.powerUP.color);
-          floor.cmpTransform.local.scaleY(0.2);
-          floor.cmpTransform.local.scaleX(0.2);
-          floor.cmpTransform.local.translateY(platform.translateY + 1.3);
-          floor.cmpTransform.local.translateX(platform.translateX);
-          level.appendChild(floor);
-        }
-      });
-    }
-    return level;
   }
 }
