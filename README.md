@@ -4,7 +4,7 @@
 
 [Github-Pages](https://llath.github.io/PRIMA/L_ScrollerFinal/index.html)
 
-[Archiv](https://drive.google.com/drive/folders/1Q-7ToeKx43UfkDk33rpPq1JK41rK1xpd?usp=sharing)
+[Archiv](https://github.com/LLath/PRIMA/blob/master/Archiev.zip)
 
 ## Checkliste für Leistungsnachweis
 
