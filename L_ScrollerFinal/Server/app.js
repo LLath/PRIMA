@@ -18,7 +18,7 @@ if (process.env.MONGOLAB_URI_USER) MONGOLAB_URI = process.env.MONGOLAB_URI_USER;
 
 try {
   mongoose.connect(
-    `mongodb+srv://krcAPI:FYHd4mIpF28kphqf@krc-hinbo.mongodb.net/prima?retryWrites=true&w=majority`,
+    `mongodb+srv://${MONGOLAB_URI}@krc-hinbo.mongodb.net/prima?retryWrites=true&w=majority`,
     { useUnifiedTopology: true }
   );
 } catch (error) {
