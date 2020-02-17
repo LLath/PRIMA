@@ -4,7 +4,7 @@ declare namespace L_ScrollerFinal {
         private static mesh;
         private static material;
         private static readonly pivot;
-        constructor();
+        constructor(_name?: string);
         getRectWorld(): ƒ.Rectangle;
     }
 }

@@ -1,120 +1,316 @@
 namespace L_ScrollerFinal {
   export import ƒ = FudgeCore;
-  export import Sprite = L14_ScrollerFoundation.Sprite;
-  export import NodeSprite = L14_ScrollerFoundation.NodeSprite;
-  import getLevel = Levels.generateLevel;
 
-  window.addEventListener("load", test);
-
-  interface KeyPressed {
-    [code: string]: boolean;
+  export enum GAMESTATE {
+    START = "Start",
+    INGAME = "Ingame",
+    OPTIONS = "Options",
+    RESTART = "Restart",
+    CLOSE = "Close",
+    KEYBINDINGS = "Keybindings"
   }
-  let keysPressed: KeyPressed = {};
 
-  export let game: ƒ.Node;
-  export let level: ƒ.Node;
-  let hare: Hare;
+  window.addEventListener("load", gameMenu);
 
-  let cmpCamera: ƒ.ComponentCamera = new ƒ.ComponentCamera();
+  export let keybinding: Keybindings = {
+    left: ƒ.KEYBOARD_CODE.A,
+    right: ƒ.KEYBOARD_CODE.D,
+    jump: ƒ.KEYBOARD_CODE.SPACE
+  };
 
-  function test(): void {
+  let keyPressed: ƒ.KEYBOARD_CODE;
+  export let state: GAMESTATE;
+
+  function mouseOverButton(
+    _point: ObjectLiteral,
+    _button: ObjectLiteral
+  ): boolean {
+    return (
+      _point.x < _button.x + _button.w &&
+      _point.x > _button.x &&
+      _point.y < _button.y + _button.h &&
+      _point.y > _button.y
+    );
+  }
+
+  let drawKeybinds: number = 0;
+
+  // TODO: START statt INGAME
+  state = GAMESTATE.INGAME;
+  export function gameMenu(): void {
     let canvas: HTMLCanvasElement = document.querySelector("canvas");
     let crc2: CanvasRenderingContext2D = canvas.getContext("2d");
-    let char: HTMLImageElement = document.querySelector("#char");
-    let img: HTMLImageElement = document.querySelector("#background");
-    let txtHare: ƒ.TextureImage = new ƒ.TextureImage();
-    let txtBackground: ƒ.TextureImage = new ƒ.TextureImage();
-    txtHare.image = char;
-    txtBackground.image = img;
-    Hare.generateSprites(txtHare);
 
-    ƒ.RenderManager.initialize(true, false);
-    game = new ƒ.Node("Game");
-    hare = new Hare("Hare");
-    level = createLevel();
-    game.appendChild(level);
+    // TODO: IF Server wechsel von localStorage
+    if (localStorage.getItem("Keybindings")) {
+      keybinding = JSON.parse(localStorage.getItem("Keybindings"));
+    }
+    let saveState = localStorage.getItem("SaveState");
+    console.log("Save", saveState);
 
-    const foreground: ƒ.Node = new ƒ.Node("Foreground");
-    const midGround: ƒ.Node = new ƒ.Node("Midground");
-    const background: ƒ.Node = new ƒ.Node("Background");
-    game.appendChild(midGround);
-    midGround.appendChild(hare);
-    background.addComponent(new ƒ.ComponentTransform());
-    let sprite: Sprite = new Sprite("Sprite");
-    sprite.generateByGrid(
-      txtBackground,
-      ƒ.Rectangle.GET(0, 0, 10000, 10000),
-      1,
-      ƒ.Vector2.ZERO(),
-      27,
-      ƒ.ORIGIN2D.CENTER
-    );
-    let nodeSprite: NodeSprite = new NodeSprite("BackgroundImage", sprite);
-    background.cmpTransform.local.translate(new ƒ.Vector3(0, 0, -15));
-    background.appendChild(nodeSprite);
+    let menuButtons: Array<ObjectLiteral> = [
+      {
+        name: GAMESTATE.KEYBINDINGS,
+        x: canvas.width / 2 - 50,
+        y: canvas.height / 4 - 50,
+        w: 100,
+        h: 50
+      },
+      {
+        name: GAMESTATE.INGAME,
+        x: canvas.width / 2 - 50,
+        y: canvas.height / 3,
+        w: 100,
+        h: 50
+      },
+      {
+        name: GAMESTATE.CLOSE,
+        x: canvas.width / 2 - 50,
+        y: canvas.height / 2,
+        w: 100,
+        h: 50
+      },
+      {
+        name: GAMESTATE.RESTART,
+        x: canvas.width / 2 - 50,
+        y: canvas.height / 2 + 100,
+        w: 100,
+        h: 50
+      }
+    ];
 
-    game.appendChild(foreground);
-    game.appendChild(background);
+    let keybindingButtons: Array<ObjectLiteral> = [
+      {
+        name: "left",
+        x: canvas.width / 2 - 250,
+        y: canvas.height / 4 - 50,
+        w: 100,
+        h: 50
+      },
+      {
+        name: "right",
+        x: canvas.width / 2 - 250,
+        y: canvas.height / 3,
+        w: 100,
+        h: 50
+      },
+      {
+        name: "jump",
+        x: canvas.width / 2 - 250,
+        y: canvas.height / 2,
+        w: 100,
+        h: 50
+      }
+    ];
 
-    cmpCamera.pivot.translateZ(5);
-    cmpCamera.pivot.lookAt(ƒ.Vector3.ZERO());
-    cmpCamera.backgroundColor = ƒ.Color.CSS("aliceblue");
+    function makeKeyCodeReadable(_keyCode: ƒ.KEYBOARD_CODE): string {
+      return _keyCode.replace(/[kK]ey/, "");
+    }
 
-    let viewport: ƒ.Viewport = new ƒ.Viewport();
-    viewport.initialize("Viewport", game, cmpCamera, canvas);
-    viewport.draw();
+    function drawKeybindMenu(): void {
+      crc2.beginPath();
+      crc2.fillStyle = "rgba(255,255,255,0.8)";
+      crc2.fillRect(0, 0, canvas.width / 2 - 130, canvas.height);
+      keybindingButtons.forEach((button, index) => {
+        crc2.globalAlpha = 1;
+        crc2.beginPath();
+        crc2.fillStyle = "black";
+        crc2.textAlign = "center";
+        let horizontalMid: number = button.y + button.h / 2 + 2;
+        let verticalMid: number = button.x + button.w / 2;
 
+        switch (index) {
+          case 0:
+            crc2.fillText(
+              `Move left - ${makeKeyCodeReadable(keybinding.left)}`,
+              verticalMid,
+              horizontalMid,
+              140
+            );
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          case 1:
+            crc2.fillText(
+              `Move right - ${makeKeyCodeReadable(keybinding.right)}`,
+              verticalMid,
+              horizontalMid,
+              140
+            );
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          case 2:
+            crc2.fillText(
+              `Jump - ${makeKeyCodeReadable(keybinding.jump)}`,
+              verticalMid,
+              horizontalMid,
+              140
+            );
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          default:
+            break;
+        }
+      });
+    }
+
+    handleMenu(canvas, menuButtons);
     document.addEventListener("keydown", handleKeyboard);
     document.addEventListener("keyup", handleKeyboard);
 
+    crc2.beginPath();
+    crc2.fillStyle = "rgba(255,255,255,0.8)";
+    crc2.fillRect(0, 0, canvas.width, canvas.height);
+
+    menuButtons.forEach((button, index) => {
+      crc2.globalAlpha = 1;
+      crc2.beginPath();
+      crc2.fillStyle = "black";
+
+      crc2.textAlign = "center";
+      let horizontalMid: number = button.y + button.h / 2 + 2;
+      let verticalMid: number = button.x + button.w / 2;
+      if (state === GAMESTATE.START) {
+        switch (index) {
+          case 0:
+            crc2.fillText("Keybindings", verticalMid, horizontalMid, 140);
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          case 1:
+            crc2.fillText("Start", verticalMid, horizontalMid, 140);
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          case 2:
+            crc2.fillText("Close", verticalMid, horizontalMid, 140);
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          default:
+            break;
+        }
+      }
+      if (state === GAMESTATE.OPTIONS) {
+        switch (index) {
+          case 0:
+            crc2.fillText("Keybindings", verticalMid, horizontalMid, 140);
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          case 1:
+            crc2.fillText("Resume", verticalMid, horizontalMid, 140);
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          case 2:
+            crc2.fillText("Back", verticalMid, horizontalMid, 140);
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          case 3:
+            crc2.fillText("Restart", verticalMid, horizontalMid, 140);
+            crc2.strokeRect(button.x, button.y, button.w, button.h);
+            break;
+          default:
+            break;
+        }
+      }
+    });
+
     ƒ.Loop.addEventListener(ƒ.EVENT.LOOP_FRAME, update);
-    ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 20);
+    ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 25);
 
-    viewport.showSceneGraph();
-
-    function update(_event: ƒ.Eventƒ): void {
+    function update(): void {
       processInput();
-      viewport.draw();
+      switch (state) {
+        case GAMESTATE.START:
+          console.log("Start");
+          break;
+        case GAMESTATE.INGAME:
+          drawKeybinds = 0;
+          crc2.clearRect(0, 0, canvas.width, canvas.height);
+          ƒ.Loop.stop();
+          ƒ.Loop.removeEventListener(ƒ.EVENT.LOOP_FRAME, update);
+          console.log("Ingame");
+          gameLoop();
+          break;
+        case GAMESTATE.CLOSE:
+          drawKeybinds = 0;
+          crc2.clearRect(0, 0, canvas.width, canvas.height);
+          ƒ.Loop.stop();
+          ƒ.Loop.removeEventListener(ƒ.EVENT.LOOP_FRAME, update);
+          game.removeChild(level);
+          localStorage.removeItem("SaveState");
+          state = GAMESTATE.START;
+          console.log("Close");
+          gameMenu();
+          break;
+        case GAMESTATE.RESTART:
+          crc2.clearRect(0, 0, canvas.width, canvas.height);
+          ƒ.Loop.stop();
+          ƒ.Loop.removeEventListener(ƒ.EVENT.LOOP_FRAME, update);
+          console.log("Restart");
+          gameLoop();
+          break;
+        case GAMESTATE.OPTIONS:
+          console.log("Options");
+          break;
+        case GAMESTATE.KEYBINDINGS:
+          handleMenu(canvas, keybindingButtons);
+          if (drawKeybinds === 0) {
+            crc2.clearRect(0, 0, canvas.width / 2 - 130, canvas.height);
+            drawKeybinds++;
+            drawKeybindMenu();
+          }
+          handleMenu(canvas, menuButtons);
+          console.log("Keybindings");
+          break;
 
-      crc2.strokeRect(-1, -1, canvas.width / 2, canvas.height + 2);
-      crc2.strokeRect(-1, canvas.height / 2, canvas.width + 2, canvas.height);
+        default:
+          break;
+      }
     }
   }
 
   function handleKeyboard(_event: KeyboardEvent): void {
-    keysPressed[_event.code] = _event.type == "keydown";
-    if (_event.code == ƒ.KEYBOARD_CODE.SPACE && _event.type == "keydown")
-      hare.act(ACTION.JUMP);
+    keyPressed = <ƒ.KEYBOARD_CODE>_event.code;
+  }
+
+  let buttonName: string;
+  let keybindPress: boolean = false;
+  function handleMenu(
+    _canvas: HTMLCanvasElement,
+    _buttons: Array<ObjectLiteral>
+  ): void {
+    _canvas.addEventListener("click", function handler(
+      _event: MouseEvent
+    ): void {
+      const rect: ClientRect = _canvas.getBoundingClientRect();
+      const mousePos: ObjectLiteral = {
+        x: _event.clientX - rect.left,
+        y: _event.clientY - rect.top
+      };
+
+      _buttons.forEach(button => {
+        if (mouseOverButton(mousePos, button)) {
+          if (Object.values(GAMESTATE).includes(button.name)) {
+            state = button.name;
+          } else {
+            keybindPress = true;
+            buttonName = button.name;
+            keyPressed = ƒ.KEYBOARD_CODE.F5;
+          }
+          this.removeEventListener("click", handler);
+        }
+      });
+    });
   }
 
   function processInput(): void {
-    if (keysPressed[ƒ.KEYBOARD_CODE.A]) {
-      hare.act(ACTION.WALK, DIRECTION.LEFT);
-      return;
+    let _bind: string = buttonName;
+    if (keybindPress) {
+      if (keyPressed !== undefined && keyPressed !== ƒ.KEYBOARD_CODE.F5) {
+        keybinding[_bind] = keyPressed;
+        localStorage.setItem("Keybindings", JSON.stringify(keybinding));
+      }
+      setTimeout(() => {
+        drawKeybinds = 0;
+        keybindPress = false;
+      }, 300);
     }
-    if (keysPressed[ƒ.KEYBOARD_CODE.D]) {
-      hare.act(ACTION.WALK, DIRECTION.RIGHT);
-      return;
-    }
-
-    hare.act(ACTION.IDLE);
-  }
-
-  function createLevel(): ƒ.Node {
-    let level: ƒ.Node = new ƒ.Node("Level");
-    let floor: Floor = new Floor();
-    floor.cmpTransform.local.scaleY(0.2);
-    level.appendChild(floor);
-
-    getLevel().map(floors => {
-      floor = new Floor();
-      floor.cmpTransform.local.scaleY(Object(floors).scaleY);
-      floor.cmpTransform.local.scaleX(Object(floors).scaleX);
-      floor.cmpTransform.local.translateY(Object(floors).translateY);
-      floor.cmpTransform.local.translateX(Object(floors).translateX);
-      level.appendChild(floor);
-    });
-
-    return level;
   }
 }

@@ -1,11 +1,11 @@
-// / <reference path="../L14_ScrollerFoundation/SpriteGenerator.ts"/>
 namespace L_ScrollerFinal {
   import ƒ = FudgeCore;
 
   export enum ACTION {
     IDLE = "Idle",
     WALK = "Walk",
-    JUMP = "Jump"
+    JUMP = "Jump",
+    LAND = "Land"
   }
   export enum DIRECTION {
     LEFT,
@@ -14,10 +14,14 @@ namespace L_ScrollerFinal {
 
   export class Hare extends ƒ.Node {
     private static sprites: Sprite[];
-    private static speedMax: ƒ.Vector2 = new ƒ.Vector2(1.5, 5); // units per second
-    private static gravity: ƒ.Vector2 = ƒ.Vector2.Y(-3);
+    private static gravity: ƒ.Vector2 = ƒ.Vector2.Y(-6);
     public speed: ƒ.Vector3 = ƒ.Vector3.ZERO();
+    private lastFrameTime: number = 0;
 
+    private stats: Stats = {
+      speed: 3 + statUpgrade.speed,
+      jump: 4.5 + statUpgrade.jump
+    };
     constructor(_name: string = "Hare") {
       super(_name);
       this.addComponent(new ƒ.ComponentTransform());
@@ -64,36 +68,69 @@ namespace L_ScrollerFinal {
         ƒ.ORIGIN2D.BOTTOMCENTER
       );
       Hare.sprites.push(sprite);
+
+      sprite = new Sprite(ACTION.JUMP);
+      sprite.generateByGrid(
+        _txtImage,
+        ƒ.Rectangle.GET(180, 180, 73, 78),
+        1,
+        ƒ.Vector2.ZERO(),
+        64,
+        ƒ.ORIGIN2D.BOTTOMCENTER
+      );
+      Hare.sprites.push(sprite);
+
+      sprite = new Sprite(ACTION.LAND);
+      sprite.generateByGrid(
+        _txtImage,
+        ƒ.Rectangle.GET(250, 180, 50, 78),
+        2,
+        ƒ.Vector2.ZERO(),
+        64,
+        ƒ.ORIGIN2D.BOTTOMCENTER
+      );
+      Hare.sprites.push(sprite);
     }
 
     public show(_action: ACTION): void {
-      // if (_action == ACTION.JUMP) return;
       for (let child of this.getChildren())
         child.activate(child.name == _action);
-      // this.action = _action;
     }
 
     public act(_action: ACTION, _direction?: DIRECTION): void {
       switch (_action) {
         case ACTION.IDLE:
           this.speed.x = 0;
+          if (this.speed.y === 0) {
+            this.show(_action);
+          }
           break;
         case ACTION.WALK:
           let direction: number = _direction == DIRECTION.RIGHT ? 1 : -1;
-          this.speed.x = Hare.speedMax.x; // * direction;
+          this.speed.x = this.stats.speed;
           this.cmpTransform.local.rotation = ƒ.Vector3.Y(90 - 90 * direction);
+          if (this.speed.y === 0) {
+            this.show(_action);
+          }
           break;
         case ACTION.JUMP:
-          this.speed.y = 2;
+          if (this.speed.y === 0) {
+            this.speed.y = this.stats.jump;
+          }
+          this.show(_action);
           break;
       }
-      this.show(_action);
     }
 
     private update = (_event: ƒ.Eventƒ): void => {
-      this.broadcastEvent(new CustomEvent("showNext"));
-
       let timeFrame: number = ƒ.Loop.timeFrameGame / 1000;
+
+      this.lastFrameTime += timeFrame;
+      while (this.lastFrameTime > 0.2) {
+        this.broadcastEvent(new CustomEvent("showNext"));
+
+        this.lastFrameTime -= 0.2;
+      }
       this.speed.y += Hare.gravity.y * timeFrame;
       let distance: ƒ.Vector3 = ƒ.Vector3.SCALE(this.speed, timeFrame);
       this.cmpTransform.local.translate(distance);
@@ -101,18 +138,48 @@ namespace L_ScrollerFinal {
       this.checkCollision();
     };
 
+    private hit(rect: ƒ.Rectangle): ƒ.Node[] {
+      return level
+        .getChildren()
+        .filter(child =>
+          rect.isInside(child.cmpTransform.local.translation.toVector2())
+        );
+    }
+
     private checkCollision(): void {
+      let translation: ƒ.Vector3 = this.cmpTransform.local.translation;
+
       for (let floor of level.getChildren()) {
         let rect: ƒ.Rectangle = (<Floor>floor).getRectWorld();
-        //console.log(rect.toString());
+
         let hit: boolean = rect.isInside(
           this.cmpTransform.local.translation.toVector2()
         );
+
+        let rectPlayer: ƒ.Rectangle = new ƒ.Rectangle(
+          translation.x,
+          translation.y,
+          1,
+          1
+        );
+
         if (hit) {
-          let translation: ƒ.Vector3 = this.cmpTransform.local.translation;
-          translation.y = rect.y;
+          if (floor.name !== "Floor") {
+            if (rectPlayer.collides(rect)) {
+              this.stats[floor.name] += 1;
+              console.log("HI", translation);
+              // let powerUpNode: ƒ.Node = game
+              //   .getChildrenByName("Level")[0]
+              //   .getChildrenByName(floor.name)[0];
+              // game.getChildrenByName("Level")[0].removeChild(powerUpNode);
+            }
+          }
+          if (translation.y > rect.top) {
+            translation.y = rect.y;
+            this.speed.y = 0;
+          }
+
           this.cmpTransform.local.translation = translation;
-          this.speed.y = 0;
         }
       }
     }

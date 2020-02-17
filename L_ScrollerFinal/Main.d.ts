@@ -1,7 +1,14 @@
 declare namespace L_ScrollerFinal {
     export import ƒ = FudgeCore;
-    export import Sprite = L14_ScrollerFoundation.Sprite;
-    export import NodeSprite = L14_ScrollerFoundation.NodeSprite;
-    let game: ƒ.Node;
-    let level: ƒ.Node;
+    enum GAMESTATE {
+        START = "Start",
+        INGAME = "Ingame",
+        OPTIONS = "Options",
+        RESTART = "Restart",
+        CLOSE = "Close",
+        KEYBINDINGS = "Keybindings"
+    }
+    let keybinding: Keybindings;
+    let state: GAMESTATE;
+    function gameMenu(): void;
 }

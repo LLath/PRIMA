@@ -9,11 +9,11 @@ namespace L_ScrollerFinal {
       new ƒ.CoatColored(ƒ.Color.CSS("red", 0.5))
     );
     private static readonly pivot: ƒ.Matrix4x4 = ƒ.Matrix4x4.TRANSLATION(
-      ƒ.Vector3.Y(-0.5)
+      ƒ.Vector3.Y(0)
     );
 
-    public constructor() {
-      super("Floor");
+    public constructor(_name: string = "Floor") {
+      super(_name);
       this.addComponent(new ƒ.ComponentTransform());
       this.addComponent(new ƒ.ComponentMaterial(Floor.material));
       let cmpMesh: ƒ.ComponentMesh = new ƒ.ComponentMesh(Floor.mesh);

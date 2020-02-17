@@ -1,6 +1,6 @@
 "use strict";
-var Levels;
-(function (Levels) {
+var Level;
+(function (Level) {
     const scaleY = 0.2;
     let scaleX = 2;
     let translateY = Math.random() * (2 - 1) - 1;
@@ -24,7 +24,7 @@ var Levels;
         }
         return level;
     }
-    Levels.generateLevel = generateLevel;
+    Level.generateLevel = generateLevel;
     function checkNearby() {
         const platform = {
             scaleY,
@@ -34,5 +34,19 @@ var Levels;
         };
         return platform;
     }
-})(Levels || (Levels = {}));
-//# sourceMappingURL=Levels.js.map
+    function clear() {
+        translateY = Math.random() * (2 - 1) - 1;
+        translateX = Math.random() * (3 - 2) - 2;
+    }
+    Level.clear = clear;
+    function createLevel(_number) {
+        let platform = {
+            scaleY,
+            scaleX,
+            translateY,
+            translateX
+        };
+        return [platform];
+    }
+})(Level || (Level = {}));
+//# sourceMappingURL=Levelgenerator.js.map

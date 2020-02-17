@@ -7,10 +7,13 @@
     <title>ScrollerFinal</title>
     <script src="../Fudge/FudgeCore.js"></script>
     <script src="../L14_ScrollerFoundation/SpriteGenerator.js"></script>
-    <script src="Level/Levels.js"></script>
+    <script src="Level/Levelgenerator.js"></script>
     <script src="Hare.js"></script>
     <script src="Floor.js"></script>
+    <script src="MovingFloor.js"></script>
     <script src="Main.js"></script>
+    <script src="Camera.js"></script>
+    <script src="Game.js"></script>
     <style>
       body {
         background-color: beige;
@@ -29,19 +32,13 @@
     </h1>
     <div style="flex-direction: column;">
       <canvas
-        width="800"
+        width="900"
         height="600"
         style="background-color: aliceblue;"
       ></canvas>
       <button onclick="location.reload()">
-        Restart Level
+        Reload Page
       </button>
     </div>
-    <p>Controls:</p>
-    <ul style="list-style: none;">
-      <li>Walk left -> A</li>
-      <li>Walk right -> D</li>
-      <li>Jump -> Space</li>
-    </ul>
   </body>
 </html>

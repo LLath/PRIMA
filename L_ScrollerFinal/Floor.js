@@ -3,8 +3,8 @@ var L_ScrollerFinal;
 (function (L_ScrollerFinal) {
     var ƒ = FudgeCore;
     class Floor extends ƒ.Node {
-        constructor() {
-            super("Floor");
+        constructor(_name = "Floor") {
+            super(_name);
             this.addComponent(new ƒ.ComponentTransform());
             this.addComponent(new ƒ.ComponentMaterial(Floor.material));
             let cmpMesh = new ƒ.ComponentMesh(Floor.mesh);
@@ -27,7 +27,7 @@ var L_ScrollerFinal;
     }
     Floor.mesh = new ƒ.MeshSprite();
     Floor.material = new ƒ.Material("Floor", ƒ.ShaderUniColor, new ƒ.CoatColored(ƒ.Color.CSS("red", 0.5)));
-    Floor.pivot = ƒ.Matrix4x4.TRANSLATION(ƒ.Vector3.Y(-0.5));
+    Floor.pivot = ƒ.Matrix4x4.TRANSLATION(ƒ.Vector3.Y(0));
     L_ScrollerFinal.Floor = Floor;
 })(L_ScrollerFinal || (L_ScrollerFinal = {}));
 //# sourceMappingURL=Floor.js.map
