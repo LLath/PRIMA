@@ -21,7 +21,6 @@ declare namespace L_ScrollerFinal {
         show(_action: ACTION): void;
         act(_action: ACTION, _direction?: DIRECTION): void;
         private update;
-        private hit;
         private checkCollision;
     }
 }

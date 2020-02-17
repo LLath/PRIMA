@@ -26,16 +26,13 @@ var L_ScrollerFinal;
     }
     let drawKeybinds = 0;
     // TODO: START statt INGAME
-    L_ScrollerFinal.state = GAMESTATE.INGAME;
+    L_ScrollerFinal.state = GAMESTATE.START;
     function gameMenu() {
         let canvas = document.querySelector("canvas");
         let crc2 = canvas.getContext("2d");
-        // TODO: IF Server wechsel von localStorage
         if (localStorage.getItem("Keybindings")) {
             L_ScrollerFinal.keybinding = JSON.parse(localStorage.getItem("Keybindings"));
         }
-        let saveState = localStorage.getItem("SaveState");
-        console.log("Save", saveState);
         let menuButtons = [
             {
                 name: GAMESTATE.KEYBINDINGS,

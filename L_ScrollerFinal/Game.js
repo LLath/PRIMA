@@ -5,6 +5,7 @@ var L_ScrollerFinal;
     L_ScrollerFinal.NodeSprite = L14_ScrollerFoundation.NodeSprite;
     let keysPressed = {};
     let hare;
+    const midGround = new L_ScrollerFinal.ƒ.Node("Midground");
     L_ScrollerFinal.statUpgrade = { speed: 0, jump: 0 };
     function gameLoop() {
         let canvas = document.querySelector("canvas");
@@ -15,7 +16,6 @@ var L_ScrollerFinal;
         let txtBackground = new L_ScrollerFinal.ƒ.TextureImage();
         let viewport = new L_ScrollerFinal.ƒ.Viewport();
         const foreground = new L_ScrollerFinal.ƒ.Node("Foreground");
-        const midGround = new L_ScrollerFinal.ƒ.Node("Midground");
         const background = new L_ScrollerFinal.ƒ.Node("Background");
         if (L_ScrollerFinal.savedData) {
             if (L_ScrollerFinal.state === L_ScrollerFinal.GAMESTATE.RESTART) {
@@ -39,11 +39,11 @@ var L_ScrollerFinal;
             L_ScrollerFinal.Hare.generateSprites(txtHare);
             L_ScrollerFinal.ƒ.RenderManager.initialize(true, false);
             L_ScrollerFinal.game = new L_ScrollerFinal.ƒ.Node("Game");
-            hare = new L_ScrollerFinal.Hare("Hare");
+            // hare = new Hare("Hare");
             L_ScrollerFinal.level = createLevel();
             L_ScrollerFinal.game.appendChild(L_ScrollerFinal.level);
             L_ScrollerFinal.game.appendChild(midGround);
-            midGround.appendChild(hare);
+            // midGround.appendChild(hare);
             let sprite = new L_ScrollerFinal.Sprite("Sprite");
             sprite.generateByGrid(txtBackground, L_ScrollerFinal.ƒ.Rectangle.GET(0, 0, 900, 600, L_ScrollerFinal.ƒ.ORIGIN2D.TOPLEFT), 1, L_ScrollerFinal.ƒ.Vector2.ZERO(), 24, L_ScrollerFinal.ƒ.ORIGIN2D.CENTER);
             let nodeSprite = new L_ScrollerFinal.NodeSprite("BackgroundImage", sprite);
@@ -85,35 +85,41 @@ var L_ScrollerFinal;
         function getGameChildren(_name) {
             return L_ScrollerFinal.game.getChildrenByName(_name)[0];
         }
-        let timeForNewBackground = 1;
+        let timeForNewBackground = 0;
         function update(_event) {
-            processInput();
-            if (hare.speed.x > 0) {
-                getGameChildren("Foreground")
-                    .getChildrenByName("ForegroundImage")
-                    .forEach(child => {
-                    child.cmpTransform.local.translateX(-0.01);
-                });
-                getGameChildren("Background")
-                    .getChildren()[0]
-                    .cmpTransform.local.translateX(-0.01);
+            // Everything that needs Hare to funtion properly
+            if (midGround.getChildrenByName("Hare")[0]) {
+                processInput();
+                if (hare.speed.x > 0) {
+                    getGameChildren("Foreground")
+                        .getChildrenByName("ForegroundImage")
+                        .forEach(child => {
+                        child.cmpTransform.local.translateX(-0.01);
+                    });
+                    getGameChildren("Background")
+                        .getChildren()
+                        .forEach(child => {
+                        child.cmpTransform.local.translateX(-0.01);
+                    });
+                }
+                if (hare.cmpTransform.local.translation.y < -1) {
+                    L_ScrollerFinal.state = L_ScrollerFinal.GAMESTATE.OPTIONS;
+                }
+                if (hare.cmpTransform.local.translation.x < -0.5) {
+                    hare.cmpTransform.local.translateX(0.1);
+                }
+                camera.translateBasedOn(hare);
             }
             if (timeForNewBackground === 0) {
                 let sprite = new L_ScrollerFinal.Sprite("Sprite");
                 sprite.generateByGrid(txtBackground, L_ScrollerFinal.ƒ.Rectangle.GET(0, 0, 900, 600, L_ScrollerFinal.ƒ.ORIGIN2D.TOPLEFT), 1, L_ScrollerFinal.ƒ.Vector2.ZERO(), 24, L_ScrollerFinal.ƒ.ORIGIN2D.CENTER);
                 let nodeSprite = new L_ScrollerFinal.NodeSprite("BackgroundImage", sprite);
                 nodeSprite.addComponent(new L_ScrollerFinal.ƒ.ComponentTransform());
-                nodeSprite.cmpTransform.local.translate(new L_ScrollerFinal.ƒ.Vector3(camera.levelBeginning.x, camera.levelBeginning.y, -15));
+                nodeSprite.cmpTransform.local.translate(new L_ScrollerFinal.ƒ.Vector3(camera.levelEnd.x, camera.levelBeginning.y, -15));
                 nodeSprite.cmpTransform.local.scaleX(1.2);
                 getGameChildren("Background").appendChild(nodeSprite);
                 timeForNewBackground++;
             }
-            if (getGameChildren("Background").getChildren()[0].cmpTransform.local
-                .translation.x < 3) {
-                timeForNewBackground = 0;
-            }
-            console.log(getGameChildren("Background").getChildren()[0].cmpTransform.local
-                .translation.x);
             getGameChildren("Foreground")
                 .getChildrenByName("ForegroundImage")
                 .forEach(child => {
@@ -127,14 +133,7 @@ var L_ScrollerFinal;
                     v.translateX(camera.levelEnd.x);
                 }
             });
-            if (hare.cmpTransform.local.translation.y < -1) {
-                L_ScrollerFinal.state = L_ScrollerFinal.GAMESTATE.OPTIONS;
-            }
-            if (hare.cmpTransform.local.translation.x < -0.5) {
-                hare.cmpTransform.local.translateX(0.1);
-            }
             viewport.draw();
-            camera.translateBasedOn(hare);
             switch (L_ScrollerFinal.state) {
                 case L_ScrollerFinal.GAMESTATE.OPTIONS:
                     let children = L_ScrollerFinal.game
@@ -215,33 +214,15 @@ var L_ScrollerFinal;
     function createLevel() {
         let level = new L_ScrollerFinal.ƒ.Node("Level");
         let floorHeight = 0.2;
-        let jumpColor = "lightcoral";
-        let speedColor = "lightgreen";
-        let level1 = [];
-        // https://prima-no-sprites.herokuapp.com/level
         fetch("https://prima-no-sprites.herokuapp.com/level")
-            .then(res => res.json())
-            .then(data => {
-            data.map((platform) => {
-                let _color;
-                let floor = new L_ScrollerFinal.Floor();
-                if (platform.color) {
-                    _color = platform.color;
-                }
-                floor = new L_ScrollerFinal.Floor("Floor", _color);
-                transformFloor(floor, platform);
-                level.appendChild(floor);
-                if (platform.powerUP) {
-                    console.log("PLATFORM:", platform);
-                    floor = new L_ScrollerFinal.Floor(platform.powerUP.name, platform.powerUP.color);
-                    floor.cmpTransform.local.scaleY(0.2);
-                    floor.cmpTransform.local.scaleX(0.2);
-                    floor.cmpTransform.local.translateY(platform.translateY + 1.3);
-                    floor.cmpTransform.local.translateX(platform.translateX);
-                    console.log("POWERUPFLOOR:", floor);
-                    level.appendChild(floor);
-                }
-            });
+            .then((res) => res.json())
+            .then((data) => {
+            localStorage.setItem("Level", JSON.stringify(data));
+            createObjects(data);
+        })
+            .then(() => {
+            hare = new L_ScrollerFinal.Hare("Hare");
+            midGround.appendChild(hare);
         });
         // getLevel().map(floors => {
         //   floor = new Floor();
@@ -257,6 +238,26 @@ var L_ScrollerFinal;
             _floor.cmpTransform.local.scaleX(_platform.scaleX);
             _floor.cmpTransform.local.translateY(_platform.translateY);
             _floor.cmpTransform.local.translateX(_platform.translateX);
+        }
+        function createObjects(_data) {
+            _data.map((platform) => {
+                let _color;
+                let floor = new L_ScrollerFinal.Floor();
+                if (platform.color) {
+                    _color = platform.color;
+                }
+                floor = new L_ScrollerFinal.Floor("Floor", _color);
+                transformFloor(floor, platform);
+                level.appendChild(floor);
+                if (platform.powerUP) {
+                    floor = new L_ScrollerFinal.Floor(platform.powerUP.name, platform.powerUP.color);
+                    floor.cmpTransform.local.scaleY(0.2);
+                    floor.cmpTransform.local.scaleX(0.2);
+                    floor.cmpTransform.local.translateY(platform.translateY + 1.3);
+                    floor.cmpTransform.local.translateX(platform.translateX);
+                    level.appendChild(floor);
+                }
+            });
         }
         return level;
     }

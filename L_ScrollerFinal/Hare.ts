@@ -138,14 +138,6 @@ namespace L_ScrollerFinal {
       this.checkCollision();
     };
 
-    private hit(rect: ƒ.Rectangle): ƒ.Node[] {
-      return level
-        .getChildren()
-        .filter(child =>
-          rect.isInside(child.cmpTransform.local.translation.toVector2())
-        );
-    }
-
     private checkCollision(): void {
       let translation: ƒ.Vector3 = this.cmpTransform.local.translation;
 

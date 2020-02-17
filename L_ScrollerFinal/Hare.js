@@ -90,11 +90,6 @@ var L_ScrollerFinal;
                     break;
             }
         }
-        hit(rect) {
-            return L_ScrollerFinal.level
-                .getChildren()
-                .filter(child => rect.isInside(child.cmpTransform.local.translation.toVector2()));
-        }
         checkCollision() {
             let translation = this.cmpTransform.local.translation;
             let levelRects = L_ScrollerFinal.level

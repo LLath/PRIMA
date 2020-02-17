@@ -36,17 +36,14 @@ namespace L_ScrollerFinal {
   let drawKeybinds: number = 0;
 
   // TODO: START statt INGAME
-  state = GAMESTATE.INGAME;
+  state = GAMESTATE.START;
   export function gameMenu(): void {
     let canvas: HTMLCanvasElement = document.querySelector("canvas");
     let crc2: CanvasRenderingContext2D = canvas.getContext("2d");
 
-    // TODO: IF Server wechsel von localStorage
     if (localStorage.getItem("Keybindings")) {
       keybinding = JSON.parse(localStorage.getItem("Keybindings"));
     }
-    let saveState = localStorage.getItem("SaveState");
-    console.log("Save", saveState);
 
     let menuButtons: Array<ObjectLiteral> = [
       {

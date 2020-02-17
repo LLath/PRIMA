@@ -10,6 +10,7 @@ namespace L_ScrollerFinal {
   let keysPressed: KeyPressed = {};
 
   let hare: Hare;
+  const midGround: ƒ.Node = new ƒ.Node("Midground");
   export let savedData: ƒ.Node;
 
   export let statUpgrade: Stats = { speed: 0, jump: 0 };
@@ -23,7 +24,6 @@ namespace L_ScrollerFinal {
     let txtBackground: ƒ.TextureImage = new ƒ.TextureImage();
     let viewport: ƒ.Viewport = new ƒ.Viewport();
     const foreground: ƒ.Node = new ƒ.Node("Foreground");
-    const midGround: ƒ.Node = new ƒ.Node("Midground");
     const background: ƒ.Node = new ƒ.Node("Background");
 
     if (savedData) {
@@ -57,13 +57,13 @@ namespace L_ScrollerFinal {
 
       ƒ.RenderManager.initialize(true, false);
       game = new ƒ.Node("Game");
-      hare = new Hare("Hare");
+      // hare = new Hare("Hare");
       level = createLevel();
 
       game.appendChild(level);
       game.appendChild(midGround);
 
-      midGround.appendChild(hare);
+      // midGround.appendChild(hare);
 
       let sprite: Sprite = new Sprite("Sprite");
       sprite.generateByGrid(
@@ -125,19 +125,30 @@ namespace L_ScrollerFinal {
       return game.getChildrenByName(_name)[0];
     }
 
-    let timeForNewBackground: number = 1;
+    let timeForNewBackground: number = 0;
     function update(_event: ƒ.Eventƒ): void {
-      processInput();
-
-      if (hare.speed.x > 0) {
-        getGameChildren("Foreground")
-          .getChildrenByName("ForegroundImage")
-          .forEach(child => {
-            child.cmpTransform.local.translateX(-0.01);
-          });
-        getGameChildren("Background")
-          .getChildren()[0]
-          .cmpTransform.local.translateX(-0.01);
+      // Everything that needs Hare to funtion properly
+      if (midGround.getChildrenByName("Hare")[0]) {
+        processInput();
+        if (hare.speed.x > 0) {
+          getGameChildren("Foreground")
+            .getChildrenByName("ForegroundImage")
+            .forEach(child => {
+              child.cmpTransform.local.translateX(-0.01);
+            });
+          getGameChildren("Background")
+            .getChildren()
+            .forEach(child => {
+              child.cmpTransform.local.translateX(-0.01);
+            });
+        }
+        if (hare.cmpTransform.local.translation.y < -1) {
+          state = GAMESTATE.OPTIONS;
+        }
+        if (hare.cmpTransform.local.translation.x < -0.5) {
+          hare.cmpTransform.local.translateX(0.1);
+        }
+        camera.translateBasedOn(hare);
       }
 
       if (timeForNewBackground === 0) {
@@ -153,25 +164,13 @@ namespace L_ScrollerFinal {
         let nodeSprite: NodeSprite = new NodeSprite("BackgroundImage", sprite);
         nodeSprite.addComponent(new ƒ.ComponentTransform());
         nodeSprite.cmpTransform.local.translate(
-          new ƒ.Vector3(camera.levelBeginning.x, camera.levelBeginning.y, -15)
+          new ƒ.Vector3(camera.levelEnd.x, camera.levelBeginning.y, -15)
         );
         nodeSprite.cmpTransform.local.scaleX(1.2);
 
         getGameChildren("Background").appendChild(nodeSprite);
         timeForNewBackground++;
       }
-
-      if (
-        getGameChildren("Background").getChildren()[0].cmpTransform.local
-          .translation.x < 3
-      ) {
-        timeForNewBackground = 0;
-      }
-
-      console.log(
-        getGameChildren("Background").getChildren()[0].cmpTransform.local
-          .translation.x
-      );
 
       getGameChildren("Foreground")
         .getChildrenByName("ForegroundImage")
@@ -187,15 +186,7 @@ namespace L_ScrollerFinal {
           }
         });
 
-      if (hare.cmpTransform.local.translation.y < -1) {
-        state = GAMESTATE.OPTIONS;
-      }
-      if (hare.cmpTransform.local.translation.x < -0.5) {
-        hare.cmpTransform.local.translateX(0.1);
-      }
-
       viewport.draw();
-      camera.translateBasedOn(hare);
 
       switch (state) {
         case GAMESTATE.OPTIONS:
@@ -299,43 +290,18 @@ namespace L_ScrollerFinal {
       color?: string;
     }
 
-    interface Level extends Array<Platform> {
-      [platform: number]: Platform;
-    }
-
     let level: ƒ.Node = new ƒ.Node("Level");
     let floorHeight: number = 0.2;
 
-    let jumpColor: string = "lightcoral";
-    let speedColor: string = "lightgreen";
-
-    let level1: Level = [];
-
-    // https://prima-no-sprites.herokuapp.com/level
     fetch("https://prima-no-sprites.herokuapp.com/level")
-      .then(res => res.json())
-      .then(data => {
-        data.map((platform: Platform) => {
-          let _color: string;
-          let floor: Floor = new Floor();
-          if (platform.color) {
-            _color = platform.color;
-          }
-          floor = new Floor("Floor", _color);
-          transformFloor(floor, platform);
-          level.appendChild(floor);
-
-          if (platform.powerUP) {
-            console.log("PLATFORM:", platform);
-            floor = new Floor(platform.powerUP.name, platform.powerUP.color);
-            floor.cmpTransform.local.scaleY(0.2);
-            floor.cmpTransform.local.scaleX(0.2);
-            floor.cmpTransform.local.translateY(platform.translateY + 1.3);
-            floor.cmpTransform.local.translateX(platform.translateX);
-            console.log("POWERUPFLOOR:", floor);
-            level.appendChild(floor);
-          }
-        });
+      .then((res: Response) => res.json())
+      .then((data: Array<Platform>) => {
+        localStorage.setItem("Level", JSON.stringify(data));
+        createObjects(data);
+      })
+      .then(() => {
+        hare = new Hare("Hare");
+        midGround.appendChild(hare);
       });
 
     // getLevel().map(floors => {
@@ -354,6 +320,28 @@ namespace L_ScrollerFinal {
       _floor.cmpTransform.local.scaleX(_platform.scaleX);
       _floor.cmpTransform.local.translateY(_platform.translateY);
       _floor.cmpTransform.local.translateX(_platform.translateX);
+    }
+
+    function createObjects(_data: Array<Platform>): void {
+      _data.map((platform: Platform) => {
+        let _color: string;
+        let floor: Floor = new Floor();
+        if (platform.color) {
+          _color = platform.color;
+        }
+        floor = new Floor("Floor", _color);
+        transformFloor(floor, platform);
+        level.appendChild(floor);
+
+        if (platform.powerUP) {
+          floor = new Floor(platform.powerUP.name, platform.powerUP.color);
+          floor.cmpTransform.local.scaleY(0.2);
+          floor.cmpTransform.local.scaleX(0.2);
+          floor.cmpTransform.local.translateY(platform.translateY + 1.3);
+          floor.cmpTransform.local.translateX(platform.translateX);
+          level.appendChild(floor);
+        }
+      });
     }
     return level;
   }
