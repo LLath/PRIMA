@@ -218,8 +218,8 @@ var L_ScrollerFinal;
         let jumpColor = "lightcoral";
         let speedColor = "lightgreen";
         let level1 = [];
-        // https://krc-api.herokuapp.com/api/
-        fetch("Level/level.json")
+        // https://prima-no-sprites.herokuapp.com/level
+        fetch("https://prima-no-sprites.herokuapp.com/level")
             .then(res => res.json())
             .then(data => {
             data.map((platform) => {

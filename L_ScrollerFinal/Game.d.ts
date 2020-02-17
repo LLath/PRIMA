@@ -5,4 +5,5 @@ declare namespace L_ScrollerFinal {
     let level: ƒ.Node;
     let savedData: ƒ.Node;
     let statUpgrade: Stats;
+    function gameLoop(): void;
 }
