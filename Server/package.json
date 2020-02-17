@@ -1,33 +1,21 @@
 {
-  "name": "fudge",
-  "version": "0.0.0",
-  "description": "Furtwangen University Didactic Game Editor (FUDGE)",
-  "main": "index.js",
   "scripts": {
-    "run": "electron Editor/Electron",
-    "build": "electron-packager Editor/Electron FUDGE --icon=Miscellaneous/Logo/Fudge_360.png --overwrite --all"
+    "start": "node -r esm app.js",
+    "dev": "nodemon -r esm app.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/JirkaDellOro/FUDGE.git"
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "mongoose": "^5.7.11",
+    "nodemon": "^1.19.4"
   },
   "keywords": [
-    "FUDGE"
+    "heroku",
+    "PRIMA"
   ],
-  "author": "Jirka Dell'Oro-Friedl",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/JirkaDellOro/FUDGE/issues"
+  "devDependencies": {
+    "uuid": "^3.3.3"
   },
-  "homepage": "https://github.com/JirkaDellOro/FUDGE#readme",
-  "dependencies": {
-    "@types/node": "^12.7.1",
-    "@types/webgl2": "0.0.5",
-    "@types/ws": "^6.0.2",
-    "electron": "^6.0.2",
-    "tslint": "^5.20.0",
-    "typescript": "^3.6.4",
-    "websocket": "^1.0.29",
-    "ws": "^7.1.2"
-  }
+  "license": "MIT"
 }
