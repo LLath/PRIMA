@@ -1,0 +1,32 @@
+[
+  { "scaleY": 0.2, "scaleX": 10, "translateX": 0, "translateY": 0 },
+  {
+    "scaleY": 0.2,
+    "scaleX": 5,
+    "translateX": 12,
+    "translateY": 0,
+    "powerUP": { "name": "jump", "color": "lightcoral" }
+  },
+  { "scaleY": 0.2, "scaleX": 2, "translateX": 3, "translateY": 1.5 },
+  {
+    "scaleY": 0.2,
+    "scaleX": 2,
+    "translateX": 1,
+    "translateY": 3,
+    "powerUP": { "name": "jump", "color": "lightcoral" }
+  },
+  {
+    "scaleY": 0.2,
+    "scaleX": 2,
+    "translateX": 1,
+    "translateY": 6,
+    "powerUP": { "name": "speed", "color": "lightgreen" }
+  },
+  {
+    "scaleY": 0.2,
+    "scaleX": 1.5,
+    "translateX": 11.5,
+    "translateY": 5.5,
+    "color": "blue"
+  }
+]

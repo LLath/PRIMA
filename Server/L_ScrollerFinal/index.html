@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>ScrollerFinal</title>
+    <script src="../Fudge/FudgeCore.js"></script>
+    <script src="../L14_ScrollerFoundation/SpriteGenerator.js"></script>
+    <script src="Level/Levelgenerator.js"></script>
+    <script src="Hare.js"></script>
+    <script src="Floor.js"></script>
+    <script src="Main.js"></script>
+    <script src="Camera.js"></script>
+    <script src="Game.js"></script>
+    <style>
+      body {
+        background-color: beige;
+      }
+    </style>
+    <img src="Assets/Character/Hare.png" style="display: none;" id="char" />
+    <img
+      src="Assets/Background/jungle_background.png"
+      style="display: none;"
+      id="background"
+    />
+  </head>
+  <body>
+    <h1>
+      Scroller Final
+    </h1>
+    <div style="flex-direction: column;">
+      <canvas
+        width="900"
+        height="600"
+        style="background-color: aliceblue;"
+      ></canvas>
+      <button onclick="location.reload()">
+        Reload Page
+      </button>
+    </div>
+  </body>
+</html>
