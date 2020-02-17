@@ -149,31 +149,54 @@ namespace L_ScrollerFinal {
     private checkCollision(): void {
       let translation: ƒ.Vector3 = this.cmpTransform.local.translation;
 
-      for (let floor of level.getChildren()) {
-        let rect: ƒ.Rectangle = (<Floor>floor).getRectWorld();
+      let levelRects: Array<ƒ.Rectangle> = level
+        .getChildren()
+        .map(child => (<Floor>child).getRectWorld());
+
+      let jumpRects: Array<ƒ.Rectangle> = level
+        .getChildrenByName("jump")
+        .map(child => (<Floor>child).getRectWorld());
+
+      let speedRects: Array<ƒ.Rectangle> = level
+        .getChildrenByName("speed")
+        .map(child => (<Floor>child).getRectWorld());
+
+      let rectPlayer: ƒ.Rectangle = new ƒ.Rectangle(
+        translation.x,
+        translation.y,
+        1.1,
+        1,
+        ƒ.ORIGIN2D.CENTER
+      );
+
+      jumpRects.forEach((powerUp, index) => {
+        if (rectPlayer.isInside(new ƒ.Vector2(powerUp.x, powerUp.y))) {
+          this.stats["jump"] += 1;
+          let powerUpNode: ƒ.Node = game
+            .getChildrenByName("Level")[0]
+            .getChildrenByName("jump")[index];
+          game.getChildrenByName("Level")[0].removeChild(powerUpNode);
+        }
+      });
+
+      speedRects.forEach((powerUp, index) => {
+        if (rectPlayer.isInside(new ƒ.Vector2(powerUp.x, powerUp.y))) {
+          this.stats["speed"] += 1;
+          let powerUpNode: ƒ.Node = game
+            .getChildrenByName("Level")[0]
+            .getChildrenByName("speed")[index];
+          game.getChildrenByName("Level")[0].removeChild(powerUpNode);
+        }
+      });
+
+      for (let floor of levelRects) {
+        let rect: ƒ.Rectangle = floor;
 
         let hit: boolean = rect.isInside(
           this.cmpTransform.local.translation.toVector2()
         );
 
-        let rectPlayer: ƒ.Rectangle = new ƒ.Rectangle(
-          translation.x,
-          translation.y,
-          1,
-          1
-        );
-
         if (hit) {
-          if (floor.name !== "Floor") {
-            if (rectPlayer.collides(rect)) {
-              this.stats[floor.name] += 1;
-              console.log("HI", translation);
-              // let powerUpNode: ƒ.Node = game
-              //   .getChildrenByName("Level")[0]
-              //   .getChildrenByName(floor.name)[0];
-              // game.getChildrenByName("Level")[0].removeChild(powerUpNode);
-            }
-          }
           if (translation.y > rect.top) {
             translation.y = rect.y;
             this.speed.y = 0;

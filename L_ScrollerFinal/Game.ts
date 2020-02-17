@@ -28,20 +28,9 @@ namespace L_ScrollerFinal {
 
     if (savedData) {
       if (state === GAMESTATE.RESTART) {
-        let hareMTX: ƒ.Matrix4x4 = savedData
-          .getChildrenByName("Midground")[0]
-          .getChildrenByName("Hare")[0].mtxWorld;
         let hareLocal: ƒ.Matrix4x4 = savedData
           .getChildrenByName("Midground")[0]
           .getChildrenByName("Hare")[0].cmpTransform.local;
-
-        hareMTX.translate(
-          new ƒ.Vector3(
-            -hareMTX.translation.x,
-            -hareMTX.translation.y,
-            hareMTX.translation.z
-          )
-        );
 
         hareLocal.translate(
           new ƒ.Vector3(
@@ -58,6 +47,7 @@ namespace L_ScrollerFinal {
         level = createLevel();
         savedData.appendChild(level);
       }
+      game = savedData;
       viewport.initialize("SavedViewport", savedData, camera, canvas);
       viewport.draw();
     } else {
@@ -74,7 +64,6 @@ namespace L_ScrollerFinal {
       game.appendChild(midGround);
 
       midGround.appendChild(hare);
-      background.addComponent(new ƒ.ComponentTransform());
 
       let sprite: Sprite = new Sprite("Sprite");
       sprite.generateByGrid(
@@ -86,10 +75,37 @@ namespace L_ScrollerFinal {
         ƒ.ORIGIN2D.CENTER
       );
       let nodeSprite: NodeSprite = new NodeSprite("BackgroundImage", sprite);
-      background.cmpTransform.local.translate(
+      nodeSprite.addComponent(new ƒ.ComponentTransform());
+      nodeSprite.cmpTransform.local.translate(
         new ƒ.Vector3(camera.levelBeginning.x, camera.levelBeginning.y, -15)
       );
+      nodeSprite.cmpTransform.local.scaleX(1.2);
       background.appendChild(nodeSprite);
+
+      foreground.addComponent(new ƒ.ComponentTransform());
+      let floor: Floor;
+
+      let lastforeGroundImageX: number = 0;
+
+      function createForeGround(_start: number = lastforeGroundImageX): void {
+        let randomY: number = Math.random() * (0 - 0.3) + 0;
+        let randomX: number = Math.random() * (5 - 1) + 1;
+        floor = new Floor("ForegroundImage");
+        let translation: ƒ.Matrix4x4 = floor.cmpTransform.local;
+        translation.scaleY(1.5);
+        translation.scaleX(1);
+        translation.translateY(randomY);
+        translation.translateX(_start + randomX);
+        translation.translateZ(2);
+        lastforeGroundImageX = translation.translation.x;
+        foreground.appendChild(floor);
+      }
+      createForeGround(0);
+      createForeGround();
+      createForeGround();
+      createForeGround();
+      createForeGround();
+      createForeGround();
 
       game.appendChild(foreground);
       game.appendChild(background);
@@ -105,9 +121,42 @@ namespace L_ScrollerFinal {
 
     viewport.showSceneGraph();
 
+    function getGameChildren(_name: string): ƒ.Node {
+      return game.getChildrenByName(_name)[0];
+    }
     function update(_event: ƒ.Eventƒ): void {
-      console.log("UPDATE");
       processInput();
+
+      if (hare.speed.x > 0) {
+        getGameChildren("Foreground")
+          .getChildrenByName("ForegroundImage")
+          .forEach(child => {
+            child.cmpTransform.local.translateX(-0.01);
+          });
+        getGameChildren("Background")
+          .getChildren()[0]
+          .cmpTransform.local.translateX(-0.01);
+      }
+      getGameChildren("Foreground")
+        .getChildrenByName("ForegroundImage")
+        .forEach(child => {
+          child.cmpTransform.local.translateX(-0.001);
+        });
+      getGameChildren("Foreground")
+        .getChildren()
+        .map(v => v.cmpTransform.local)
+        .forEach(v => {
+          if (v.translation.x <= 0) {
+            v.translateX(camera.levelEnd.x);
+          }
+        });
+
+      if (
+        hare.cmpTransform.local.translation.x < -1 ||
+        hare.cmpTransform.local.translation.y < -1
+      ) {
+        state = GAMESTATE.OPTIONS;
+      }
 
       viewport.draw();
       camera.translateBasedOn(hare);
@@ -224,7 +273,10 @@ namespace L_ScrollerFinal {
         scaleY: floorHeight,
         scaleX: 5,
         translateX: 12,
-        translateY: 0
+        translateY: 0,
+        powerUP: {
+          name: "speed"
+        }
       },
       {
         scaleY: floorHeight,
